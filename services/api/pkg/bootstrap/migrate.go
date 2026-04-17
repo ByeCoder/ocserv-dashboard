@@ -14,6 +14,7 @@ var tables = []interface{}{
 	&commonModels.OcservGroup{},
 	&commonModels.OcservUser{},
 	&commonModels.OcservUserTrafficStatistics{},
+	&commonModels.OcservUserSessionLog{},
 }
 
 func Migrate() {

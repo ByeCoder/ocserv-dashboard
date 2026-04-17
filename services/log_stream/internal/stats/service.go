@@ -59,25 +59,34 @@ func (s *StatService) CalculateUserStats() {
 
 			cleanMsg := strings.TrimSpace(msg) // remove whitespace/newlines and normalize case
 
-			if strings.Contains(cleanMsg, "user disconnected") {
-				u, err := s.extractUser(cleanMsg)
+			sessionLog := s.extractOcservSessionLog(cleanMsg)
+			if sessionLog != nil && sessionLog.Username != "" {
+				err := s.saveSessionLog(s.ctx, sessionLog)
 				if err != nil {
-					logger.Error("Error extracting user msg (%q): %v", cleanMsg, err)
+					logger.Warn("failed to save session log: ", err)
 					continue
 				}
 
-				if err = s.save(s.ctx, u); err != nil {
-					logger.Error("Error saving user msg (%v): %v", u, err)
-					continue
-				}
+				if sessionLog.Event == "disconnect" {
+					u, err := s.extractUser(cleanMsg)
+					if err != nil {
+						logger.Error("Error extracting user msg (%q): %v", cleanMsg, err)
+						continue
+					}
 
-				logger.Info("Processed user: %v successfully", u)
+					if err = s.saveRxTx(s.ctx, u); err != nil {
+						logger.Error("Error saving user msg (%v): %v", u, err)
+						continue
+					}
+
+					logger.Info("Processed user: %v successfully", u)
+				}
 			}
 		}
 	}
 }
 
-func (s *StatService) save(ctx context.Context, u UserStats) error {
+func (s *StatService) saveRxTx(ctx context.Context, u UserStats) error {
 	db := database.GetConnection()
 	db = db.WithContext(ctx)
 
@@ -153,6 +162,19 @@ func (s *StatService) save(ctx context.Context, u UserStats) error {
 	return nil
 }
 
+func (s *StatService) saveSessionLog(ctx context.Context, log *models.OcservUserSessionLog) error {
+	db := database.GetConnection()
+	db = db.WithContext(ctx)
+
+	err := db.Save(log).Error
+	if err != nil {
+		logger.Error("Error updating user stats: %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func (s *StatService) getCurrentMonthTotals(db *gorm.DB, userID uint) (Totals, error) {
 	now := time.Now()
 	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
@@ -191,4 +213,55 @@ func (s *StatService) extractUser(text string) (UserStats, error) {
 	}
 	return stats, errors.New("no user found")
 
+}
+
+func (s *StatService) extractOcservSessionLog(line string) *models.OcservUserSessionLog {
+	reUserIP := regexp.MustCompile(`worker\[(?P<user>[^\]]+)\]:\s(?P<ip>\d+\.\d+\.\d+\.\d+)`)
+	reSession := regexp.MustCompile(`session:\s(?P<session>[A-Za-z0-9]+)`)
+	reAuth := regexp.MustCompile(`auth (init|cont) for user '(?P<user>[^']+)'`)
+	reBan := regexp.MustCompile(`added \d+ points .* IP '(?P<ip>\d+\.\d+\.\d+\.\d+)'`)
+	reDisconnect := regexp.MustCompile(`(?P<ip>\d+\.\d+\.\d+\.\d+).*user disconnected`)
+	reTime := regexp.MustCompile(`\[(?P<time>[^\]]+)\]`)
+
+	log := &models.OcservUserSessionLog{
+		Message: line,
+	}
+
+	// time
+	if m := reTime.FindStringSubmatch(line); len(m) > 1 {
+		if t, err := time.Parse("2006-01-02 15:04:05", m[1]); err == nil {
+			log.CreatedAt = t
+		}
+	}
+
+	// user + ip (worker)
+	if m := reUserIP.FindStringSubmatch(line); len(m) > 2 {
+		log.Username = m[1]
+		log.IP = m[2]
+	}
+
+	// session
+	if m := reSession.FindStringSubmatch(line); len(m) > 1 {
+		log.SessionID = m[1]
+	}
+
+	// auth events
+	if m := reAuth.FindStringSubmatch(line); len(m) > 1 {
+		log.Event = "auth_" + m[1] // auth_init / auth_cont
+		log.Username = m[2]
+	}
+
+	// ban event
+	if m := reBan.FindStringSubmatch(line); len(m) > 1 {
+		log.Event = "ban"
+		log.IP = m[1]
+	}
+
+	// disconnect
+	if m := reDisconnect.FindStringSubmatch(line); len(m) > 1 {
+		log.Event = "disconnect"
+		log.IP = m[1]
+	}
+
+	return log
 }
