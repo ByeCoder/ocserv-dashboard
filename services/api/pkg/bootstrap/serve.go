@@ -28,9 +28,6 @@ func Serve(debug bool, host string, port int) {
 	cfg := config.Get()
 
 	database.Connect()
-
-	Migrate()
-
 	defer database.Close()
 
 	go routing.Serve(cfg)

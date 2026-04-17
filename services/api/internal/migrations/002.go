@@ -19,7 +19,6 @@ var Migration002 = &gormigrate.Migration{
 				id BIGSERIAL PRIMARY KEY,
 				username VARCHAR(64),
 				ip VARCHAR(45),
-				session_id VARCHAR(64),
 				event VARCHAR(64),
 				message TEXT,
 				created_at TIMESTAMP DEFAULT NOW()
@@ -34,20 +33,6 @@ var Migration002 = &gormigrate.Migration{
 		if err := tx.Exec(`
 			CREATE INDEX IF NOT EXISTS idx_ocserv_logs_username
 			ON ocserv_user_session_logs(username);
-		`).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
-			CREATE INDEX IF NOT EXISTS idx_ocserv_logs_ip
-			ON ocserv_user_session_logs(ip);
-		`).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
-			CREATE INDEX IF NOT EXISTS idx_ocserv_logs_session
-			ON ocserv_user_session_logs(session_id);
 		`).Error; err != nil {
 			return err
 		}

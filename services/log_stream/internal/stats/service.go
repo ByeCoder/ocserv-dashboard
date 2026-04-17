@@ -2,7 +2,6 @@ package stats
 
 import (
 	"context"
-	"errors"
 	"github.com/mmtaee/ocserv-dashboard/common/models"
 	occtlDocker "github.com/mmtaee/ocserv-dashboard/common/occtl_docker"
 	"github.com/mmtaee/ocserv-dashboard/common/ocserv/occtl"
@@ -51,42 +50,127 @@ func (s *StatService) CalculateUserStats() {
 			logger.Warn("stopping: context cancelled")
 			return
 
-		case msg, ok := <-s.stream:
+		case line, ok := <-s.stream:
 			if !ok {
 				logger.Warn("stream closed, exiting ...")
 				return
 			}
 
-			cleanMsg := strings.TrimSpace(msg) // remove whitespace/newlines and normalize case
+			cleanLine := strings.TrimSpace(line) // remove whitespace/newlines and normalize case
 
-			sessionLog := s.extractOcservSessionLog(cleanMsg)
-			if sessionLog != nil && sessionLog.Username != "" {
-				err := s.saveSessionLog(s.ctx, sessionLog)
-				if err != nil {
-					logger.Warn("failed to save session log: ", err)
+			if strings.Contains(cleanLine, "server shutdown complete") {
+				logger.Error("Ocserv server shutdown abnormally")
+				p, _ := os.FindProcess(os.Getpid())
+				_ = p.Signal(syscall.SIGTERM)
+				return
+			}
+
+			if !strings.Contains(cleanLine, "worker[") && !strings.Contains(cleanLine, "main[") {
+				continue
+			}
+
+			if strings.Contains(cleanLine, "user disconnected") {
+				stats, err := s.getDisconnectStat(cleanLine)
+				if err != nil || stats == nil {
 					continue
 				}
 
-				if sessionLog.Event == "disconnect" {
-					u, err := s.extractUser(cleanMsg)
-					if err != nil {
-						logger.Error("Error extracting user msg (%q): %v", cleanMsg, err)
-						continue
-					}
-
-					if err = s.saveRxTx(s.ctx, u); err != nil {
-						logger.Error("Error saving user msg (%v): %v", u, err)
-						continue
-					}
-
-					logger.Info("Processed user: %v successfully", u)
+				err = s.saveRxTx(s.ctx, stats)
+				if err != nil {
+					logger.Error("Failed to save RxTx stats: %v", err)
 				}
+
+				logger.Info("Saved RxTx stats: %v", stats)
+
+				// replace main word with worker to extract user session log
+				cleanLine = strings.Replace(cleanLine, "main[", "worker[", 1)
 			}
+
+			logger.Info("starting get user session from line: %s", cleanLine)
+
+			sessionLog := s.getUserSessionLog(cleanLine)
+			if sessionLog == nil {
+				//logger.Error("Failed to get user session log on cleanLine %s", cleanLine)
+				continue
+			}
+
+			if err := s.saveSessionLog(s.ctx, sessionLog); err != nil {
+				logger.Error("Error saving session msg (%v): %v", sessionLog.Username, err)
+				continue
+			}
+			logger.Info("Processed user: %v successfully", sessionLog.Username)
+
 		}
 	}
 }
 
-func (s *StatService) saveRxTx(ctx context.Context, u UserStats) error {
+func (s *StatService) getUserSessionLog(cleanLine string) *models.OcservUserSessionLog {
+	workerRe := regexp.MustCompile(`worker\[(?P<user>[^\]]+)\]:\s*(?P<rest>.*)`)
+	//ipRe := regexp.MustCompile(`^(?P<ip>\d+\.\d+\.\d+\.\d+)\s+(?P<rest>.*)$`)
+	ipRe := regexp.MustCompile(`^(?P<ip>\d+\.\d+\.\d+\.\d+)(?::\d+)?\s+(?P<rest>.*)$`)
+	var username, ip, msg string
+
+	// Step 1: extract worker
+	if m := workerRe.FindStringSubmatch(cleanLine); m != nil {
+		username = m[1]
+		msg = m[2]
+	} else {
+		logger.Error("no worker found in line: %s", cleanLine)
+		return nil
+	}
+
+	// Step 2: extract IP
+	if m := ipRe.FindStringSubmatch(msg); m != nil {
+		ip = m[1]
+		msg = m[2]
+	}
+
+	// Step 3: detect event
+	var event string
+
+	switch {
+	case strings.Contains(msg, "User-agent"):
+		event = models.EventUseragent
+	case strings.Contains(msg, "DTLS handshake completed"):
+		event = models.EventHandshake
+	case strings.Contains(msg, "sent periodic stats"):
+		event = models.EventPeriodicStats
+	case strings.Contains(msg, "user disconnected"):
+		event = models.EventDisconnect
+	default:
+		return nil
+	}
+
+	return &models.OcservUserSessionLog{
+		Username: username,
+		IP:       ip,
+		Event:    event,
+		Message:  msg,
+	}
+}
+
+func (s *StatService) getDisconnectStat(cleanLine string) (*UserStats, error) {
+	reTxRx := regexp.MustCompile(`main\[(.*?)\].*rx:\s*(\d+),\s*tx:\s*(\d+)`)
+	matchRxTx := reTxRx.FindStringSubmatch(cleanLine)
+	if len(matchRxTx) > 3 {
+		rx, _ := strconv.Atoi(matchRxTx[2])
+		tx, _ := strconv.Atoi(matchRxTx[3])
+		// exclude rx/tx 0 from log
+		if rx > 0 || tx > 0 {
+			rxTxStats := &UserStats{
+				Username: matchRxTx[1],
+				RX:       rx,
+				TX:       tx,
+			}
+			return rxTxStats, nil
+		}
+	}
+	return nil, nil
+}
+
+func (s *StatService) saveRxTx(ctx context.Context, u *UserStats) error {
+	logger.Info("saveRxTx called for user=%s RX=%d TX=%d", u.Username, u.RX, u.TX)
+
 	db := database.GetConnection()
 	db = db.WithContext(ctx)
 
@@ -187,81 +271,4 @@ func (s *StatService) getCurrentMonthTotals(db *gorm.DB, userID uint) (Totals, e
 		Scan(&result).Error
 
 	return result, err
-}
-
-func (s *StatService) extractUser(text string) (UserStats, error) {
-	var (
-		username string
-		stats    UserStats
-	)
-
-	if strings.Contains(text, "server shutdown complete") {
-		logger.Error("Ocserv server shutdown abnormally")
-		p, _ := os.FindProcess(os.Getpid())
-		_ = p.Signal(syscall.SIGTERM)
-		return stats, errors.New("shutdown signal sent")
-	}
-
-	re := regexp.MustCompile(`main\[(.*?)\].*rx:\s*(\d+),\s*tx:\s*(\d+)`)
-	match := re.FindStringSubmatch(text)
-	if len(match) > 0 {
-		username = match[1]
-		stats.RX, _ = strconv.Atoi(match[2])
-		stats.TX, _ = strconv.Atoi(match[3])
-		stats.Username = username
-		return stats, nil
-	}
-	return stats, errors.New("no user found")
-
-}
-
-func (s *StatService) extractOcservSessionLog(line string) *models.OcservUserSessionLog {
-	reUserIP := regexp.MustCompile(`worker\[(?P<user>[^\]]+)\]:\s(?P<ip>\d+\.\d+\.\d+\.\d+)`)
-	reSession := regexp.MustCompile(`session:\s(?P<session>[A-Za-z0-9]+)`)
-	reAuth := regexp.MustCompile(`auth (init|cont) for user '(?P<user>[^']+)'`)
-	reBan := regexp.MustCompile(`added \d+ points .* IP '(?P<ip>\d+\.\d+\.\d+\.\d+)'`)
-	reDisconnect := regexp.MustCompile(`(?P<ip>\d+\.\d+\.\d+\.\d+).*user disconnected`)
-	reTime := regexp.MustCompile(`\[(?P<time>[^\]]+)\]`)
-
-	log := &models.OcservUserSessionLog{
-		Message: line,
-	}
-
-	// time
-	if m := reTime.FindStringSubmatch(line); len(m) > 1 {
-		if t, err := time.Parse("2006-01-02 15:04:05", m[1]); err == nil {
-			log.CreatedAt = t
-		}
-	}
-
-	// user + ip (worker)
-	if m := reUserIP.FindStringSubmatch(line); len(m) > 2 {
-		log.Username = m[1]
-		log.IP = m[2]
-	}
-
-	// session
-	if m := reSession.FindStringSubmatch(line); len(m) > 1 {
-		log.SessionID = m[1]
-	}
-
-	// auth events
-	if m := reAuth.FindStringSubmatch(line); len(m) > 1 {
-		log.Event = "auth_" + m[1] // auth_init / auth_cont
-		log.Username = m[2]
-	}
-
-	// ban event
-	if m := reBan.FindStringSubmatch(line); len(m) > 1 {
-		log.Event = "ban"
-		log.IP = m[1]
-	}
-
-	// disconnect
-	if m := reDisconnect.FindStringSubmatch(line); len(m) > 1 {
-		log.Event = "disconnect"
-		log.IP = m[1]
-	}
-
-	return log
 }

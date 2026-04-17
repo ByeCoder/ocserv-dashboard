@@ -19,7 +19,7 @@ func (r *Request) BadRequest(c echo.Context, err interface{}, msg ...string) err
 	case error:
 		var pqErr *pgconn.PgError
 		if errors.As(err.(error), &pqErr) {
-			response.Error = append(response.Error, pqErr.Message)
+			response.Error = append(response.Error, pqErr.Code)
 		} else {
 			response.Error = append(response.Error, err.(error).Error())
 		}
