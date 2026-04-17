@@ -10,6 +10,13 @@ DEBUG=${DEBUG:-0}  # Default to 0 if not set
 trap "echo '[INFO] Caught SIGTERM, stopping...'; kill -TERM \$OCSERV_PID \$API_PID \$WEBHOOK_PID 2>/dev/null" SIGTERM SIGINT
 
 # -----------------------------
+# migrating database
+# -----------------------------
+echo "[INFO] Starting migrating database schemas..."
+api migrate
+
+
+# -----------------------------
 # Start API service as non-root user
 # -----------------------------
 echo "[INFO] Starting API service..."
