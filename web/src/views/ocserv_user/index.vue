@@ -17,7 +17,8 @@ import Pagination from '@/components/shared/Pagination.vue';
 import type { Meta } from '@/types/metaTypes/MetaType';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useProfileStore } from '@/stores/profile';
-import ActivateDialog from '@/components/ocserv_user/ActivateDialog.vue';
+import SessionLogsDialog from '@/components/ocserv_user/SessionLogsDialog.vue';
+import StatisticsDialog from '@/components/ocserv_user/StatisticsDialog.vue';
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -37,6 +38,14 @@ const deleteUserUID = ref('');
 const activateDialog = ref(false);
 const activateUserName = ref('');
 const activateUserUID = ref('');
+
+const statisticsDialog = ref(false);
+const statisticsUsername = ref('');
+const statisticsUID = ref('');
+
+const sessionLogsDialog = ref(false);
+const sessionLogsUsername = ref('');
+const sessionLogsUID = ref('');
 
 const users = ref<ModelsOcservUser[]>([]);
 const snackbar = useSnackbarStore();
@@ -174,7 +183,15 @@ const activateUser = (expireAt: string) => {
 };
 
 const statistics = async (uid: string, username: string) => {
-    await router.push({ name: 'Ocserv User Statistics', params: { uid: uid }, query: { username: username } });
+    statisticsDialog.value = true;
+    statisticsUsername.value = username;
+    statisticsUID.value = uid;
+};
+
+const sessionLogs = async (uid: string, username: string) => {
+    sessionLogsDialog.value = true;
+    sessionLogsUsername.value = username;
+    sessionLogsUID.value = uid;
 };
 
 const deleteUserHandler = (uid: string, username: string) => {
@@ -199,6 +216,18 @@ const cancelActivateUser = () => {
     activateUserUID.value = '';
     activateUserName.value = '';
     activateDialog.value = false;
+};
+
+const closeStatisticsDialog = () => {
+    statisticsUID.value = '';
+    statisticsUsername.value = '';
+    statisticsDialog.value = false;
+};
+
+const closeSessionLogsDialog = () => {
+    sessionLogsUID.value = '';
+    sessionLogsUsername.value = '';
+    sessionLogsDialog.value = false;
 };
 
 const deleteUser = () => {
@@ -565,6 +594,15 @@ onMounted(() => {
                                                 </template>
                                             </v-list-item>
 
+                                            <v-list-item @click="sessionLogs(item.uid, item.username)">
+                                                <v-list-item-title class="text-grey text-capitalize me-5">
+                                                    {{ t('SESSION_LOGS') }}
+                                                </v-list-item-title>
+                                                <template v-slot:prepend>
+                                                    <v-icon class="ms-2" color="grey">mdi-timeline-text-outline</v-icon>
+                                                </template>
+                                            </v-list-item>
+
                                             <v-list-item @click="deleteUserHandler(item?.uid, item.username)">
                                                 <v-list-item-title class="text-error text-capitalize me-5">
                                                     {{ t('DELETE') }}
@@ -596,7 +634,22 @@ onMounted(() => {
         @close="cancelActivateUser"
         @activateUser="activateUser"
     />
+
     <DeleteDialog :show="deleteDialog" :username="deleteUserName" @close="cancelDeleteUser" @deleteUser="deleteUser" />
+
+    <StatisticsDialog
+        :show="statisticsDialog"
+        :username="statisticsUsername"
+        :uid="statisticsUID"
+        @close="closeStatisticsDialog"
+    />
+
+    <SessionLogsDialog
+        :show="sessionLogsDialog"
+        :username="sessionLogsUsername"
+        :uid="sessionLogsUID"
+        @close="closeSessionLogsDialog"
+    />
 </template>
 
 <style scoped>

@@ -23,6 +23,7 @@ export * from './api/ocserv-ocpasswd-api';
 export * from './api/ocserv-statistics-api';
 export * from './api/ocserv-unsynced-group-api';
 export * from './api/ocserv-users-api';
+export * from './api/report-api';
 export * from './api/system-api';
 export * from './api/system-backup-api';
 export * from './api/system-restore-api';
