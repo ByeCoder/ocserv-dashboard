@@ -66,7 +66,7 @@ const updateMeta = (newMeta: Meta) => {
 <template>
     <v-row>
         <v-col cols="12" md="12">
-            <UiParentCard :title="t('SESSION_LOGS')">
+            <UiParentCard :title="t('OCSERV_USERS_SESSION_LOGS')">
                 <v-progress-linear :active="loading" indeterminate></v-progress-linear>
 
                 <div v-if="!loading">

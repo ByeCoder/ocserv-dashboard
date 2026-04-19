@@ -8,7 +8,7 @@ import {
     ModelsOcservUserTrafficTypeEnum,
     OcservUsersApi,
     type OcservUsersGetFilterEnum,
-    type OcservUserUserStatsResponse
+    ReportApi, type ReportOcservUserReportResponse
 } from '@/api';
 import { getAuthorization } from '@/utils/request';
 import { bytesToGB, formatDate, trafficTypesTransformer } from '@/utils/convertors';
@@ -53,7 +53,7 @@ const snackbar = useSnackbarStore();
 const profileStore = useProfileStore();
 const isAdmin = ref(profileStore.isAdmin);
 
-const userStats = ref<OcservUserUserStatsResponse>({
+const userStats = ref<ReportOcservUserReportResponse>({
     active: 0,
     deactivated: 0,
     online: 0,
@@ -269,7 +269,8 @@ const reload = () => {
 };
 
 const getUserStats = () => {
-    api.ocservUsersStatsGet({
+    const apiStats = new ReportApi()
+    apiStats.reportsUsersGet({
         ...getAuthorization()
     }).then((res) => {
         console.log(res.data);

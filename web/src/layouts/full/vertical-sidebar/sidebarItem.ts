@@ -80,16 +80,15 @@ export function getSidebarItems(): Menu[] {
                 to: '/statistics'
             },
             {
-                title: t('SESSION_LOGS'),
-                icon: 'mdi-timeline-text-outline',
-                to: '/session_logs'
-            },
-            {
                 title: t('BANDWIDTHS'),
                 icon: 'mdi-speedometer',
                 to: '/bandwidths'
             },
-
+            {
+                title: t('SESSION_LOGS'),
+                icon: 'mdi-timeline-text-outline',
+                to: '/session_logs'
+            },
             { header: t('LOGS') },
             {
                 title: t('SERVER'),
