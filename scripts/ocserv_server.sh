@@ -9,6 +9,20 @@ DEBUG=${DEBUG:-0}  # Default to 0 if not set
 # shellcheck disable=SC2064
 trap "echo '[INFO] Caught SIGTERM, stopping...'; kill -TERM \$OCSERV_PID \$API_PID \$WEBHOOK_PID 2>/dev/null" SIGTERM SIGINT
 
+
+# -----------------------------
+# preload sqlite to postgreSQL database
+# -----------------------------
+DB_DIR="/usr/local/bin/db"
+
+if [ -d "$DB_DIR" ]; then
+    if api db-loader; then
+        mv "$DB_DIR/ocserv.db" \
+           "$DB_DIR/loaded_to_postgres_ocserv.db"
+    fi
+fi
+
+
 # -----------------------------
 # migrating database
 # -----------------------------

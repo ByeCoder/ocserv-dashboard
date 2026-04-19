@@ -38,7 +38,7 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      - /opt/ocserv_dashboard/docker_volumes/db:/usr/local/bin/db  # deprecated
+      - /opt/ocserv_dashboard/docker_volumes/db:/usr/local/bin/db  # deprecated (sqlite)
       - /opt/ocserv_dashboard/docker_volumes/ocserv:/etc/ocserv
     ports:
       - ${OCSERV_PORT:-443}:443/tcp
