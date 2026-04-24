@@ -55,7 +55,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         # runtime deps
         sudo ca-certificates procps gnutls-bin iptables \
-        openssl less dnsutils jq curl \
+        openssl less dnsutils jq curl iproute2\
         \
         # build deps (needed for ocserv build)
         build-essential meson ninja-build pkg-config git \

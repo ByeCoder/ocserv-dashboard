@@ -226,33 +226,7 @@ else
 fi
 
 # ==============================================================
-# 4. Firewall Rules / NAT
-# ==============================================================
-log "Configuring iptables firewall and NAT..."
-
-# Allow Ocserv ports
-sudo iptables -I INPUT -p tcp --dport "${OCSERV_PORT}" -j ACCEPT
-sudo iptables -I INPUT -p udp --dport "${OCSERV_PORT}" -j ACCEPT
-
-# NAT for VPN subnet
-sudo iptables -t nat -A POSTROUTING -s "${OC_NET}" -o "${ETH}" -j MASQUERADE
-
-# Forward outbound + inbound VPN connections
-sudo iptables -A FORWARD -s "${OC_NET}" -o "${ETH}" -j ACCEPT
-sudo iptables -A FORWARD -d "${OC_NET}" -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-# Save firewall rules
-sudo debconf-set-selections <<EOF
-iptables-persistent iptables-persistent/autosave_v4 boolean true
-iptables-persistent iptables-persistent/autosave_v6 boolean true
-EOF
-
-sudo sh -c "iptables-save > /etc/iptables/rules.v4"
-sudo sh -c "ip6tables-save > /etc/iptables/rules.v6"
-sudo netfilter-persistent save || true
-
-# ==============================================================
-# 5. Enable Kernel Forwarding
+# 4. Enable Kernel Forwarding
 # ==============================================================
 log "Enabling IP forwarding..."
 
@@ -260,6 +234,37 @@ sudo sysctl -w net.ipv4.ip_forward=1
 # Persist safely via /etc/sysctl.d
 echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-ocserv.conf >/dev/null
 sudo sysctl --system
+
+# ==============================================================
+# 5. Firewall Rules / NAT
+# ==============================================================
+log "Configuring firewall..."
+
+# Allow VPN ports
+sudo iptables -C INPUT -p tcp --dport "${OCSERV_PORT}" -j ACCEPT 2>/dev/null || \
+sudo iptables -A INPUT -p tcp --dport "${OCSERV_PORT}" -j ACCEPT
+
+sudo iptables -C INPUT -p udp --dport "${OCSERV_PORT}" -j ACCEPT 2>/dev/null || \
+sudo iptables -A INPUT -p udp --dport "${OCSERV_PORT}" -j ACCEPT
+
+# NAT VPN subnet
+sudo iptables -t nat -C POSTROUTING -s "${OC_NET}" -o "${ETH}" -j MASQUERADE 2>/dev/null || \
+sudo iptables -t nat -A POSTROUTING -s "${OC_NET}" -o "${ETH}" -j MASQUERADE
+
+# Forward rules
+sudo iptables -C FORWARD -s "${OC_NET}" -o "${ETH}" -j ACCEPT 2>/dev/null || \
+sudo iptables -A FORWARD -s "${OC_NET}" -o "${ETH}" -j ACCEPT
+
+sudo iptables -C FORWARD -d "${OC_NET}" -m state --state ESTABLISHED,RELATED -j ACCEPT 2>/dev/null || \
+sudo iptables -A FORWARD -d "${OC_NET}" -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+sudo iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+log "Saving firewall rules..."
+#iptables-save | sudo tee /etc/iptables/rules.v4 > /dev/null
+sudo sh -c "iptables-save > /etc/iptables/rules.v4"
+
+#sudo netfilter-persistent save || true
 
 # ==============================================================
 # 6. Start & Enable Ocserv Service
