@@ -68,18 +68,21 @@ func loader() {
 
 		// 1. Create schema
 		if err := pgDB.AutoMigrate(model); err != nil {
-			logger.Fatal("error migrating: %v", err)
+			logger.Error("error auto migrating: %v", err)
+			continue
 		}
 
 		logger.Info("Database AutoMigrate SQlite to PostgreSQL completed")
 		// 2. Copy data
 		if err := migrateTable(sqliteDB, pgDB, model); err != nil {
-			logger.Fatal("error migrating: %v", err)
+			logger.Error("error migrating table: %v", err)
+			continue
 		}
 
 		// 3. Fix sequence (PostgreSQL)
 		if err := resetSequence(pgDB, model); err != nil {
 			logger.Error("sequence warning: %v", err)
+			continue
 		}
 
 		logger.Info("Migration for table (%s) complete", tableName)

@@ -106,17 +106,17 @@ fi
 # -----------------------
 # Check to load old SQlite DB to PostgreSQL
 # -----------------------
-DB_DIR="/usr/local/bin/db"
-DB_FILE="${DB_DIR}/ocserv.db"
-
-if [ -f "$DB_FILE" ]; then
-    if "${BIN_DIR}"/api db-loader; then
-        mv "${DB_FILE}" \
-           "${DB_DIR}/loaded_to_postgres_ocserv.db"
-    else
-        exit 128
-    fi
-fi
+#DB_DIR="/usr/local/bin/db"
+#DB_FILE="${DB_DIR}/ocserv.db"
+#
+#if [ -f "$DB_FILE" ]; then
+#    if "${BIN_DIR}"/api db-loader; then
+#        mv "${DB_FILE}" \
+#           "${DB_DIR}/loaded_to_postgres_ocserv.db"
+#    else
+#        exit 128
+#    fi
+#fi
 
 # -----------------------
 # Database Migration
