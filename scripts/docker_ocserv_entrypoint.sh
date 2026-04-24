@@ -140,12 +140,28 @@ _EOF_
     cp "${serverkey}" /etc/ocserv/certs/cert.key
 fi
 
-iptables -t nat -A POSTROUTING -j MASQUERADE
-# sysctl -w net.ipv4.ip_forward=1 # ipv4 ip forward
-echo "net.ipv4.ip_forward = 1" > /etc/sysctl.conf
-sysctl -p
-mkdir -p /dev/net               #TUN device
+# Enable IP forwarding (runtime)
+sysctl -w net.ipv4.ip_forward=1
 
+# Detect interface
+ETH=$(ip route | awk '/default/ {print $5; exit}')
+ETH=${ETH:-eth0}
+
+# NAT only VPN subnet
+iptables -t nat -A POSTROUTING -s "$OC_NET" -o "$ETH" -j MASQUERADE
+
+# Allow VPN traffic forwarding
+iptables -A FORWARD -s "$OC_NET" -o "$ETH" -j ACCEPT
+iptables -A FORWARD -d "$OC_NET" -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Allow VPN port
+iptables -A INPUT -p tcp --dport "${OCSERV_PORT}" -j ACCEPT
+iptables -A INPUT -p udp --dport "${OCSERV_PORT}" -j ACCEPT
+
+# VPN over MTU networks
+iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+mkdir -p /dev/net               #TUN device
 if [ ! -c /dev/net/tun ]; then
     mknod /dev/net/tun c 10 200
 fi
