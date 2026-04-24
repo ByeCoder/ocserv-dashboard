@@ -3,10 +3,10 @@ services:
     image: postgres:17
     container_name: ocserv-postgres
     restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+#    environment: # not needed, read from .env file
+#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+#      POSTGRES_DB: ${POSTGRES_DB:-postgres}
     volumes:
       - /opt/ocserv_dashboard/docker_volumes/pg_db:/var/lib/postgresql/data
     networks:
