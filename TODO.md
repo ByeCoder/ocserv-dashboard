@@ -11,7 +11,7 @@
 - [x] Refactor large interfaces into smaller, focused, single-responsibility interfaces
 - [ ] Support multiple owners per Ocserv user (R&D) (#88)
 - [x] Allow users to disconnect their active sessions from the customer page(#93)
-- [ ] Add backup and restore support for ocserv users (export/import as JSON with full details)(#96)
+- [x] Add backup and restore support for ocserv users (export/import as JSON with full details)(#96)
 - [ ] Research and implement a new permission strategy for staff roles, introducing super-admin, admin, and staff levels (#97)
 - [ ] Implement super-admin, admin, and staff activities tracking and logs (#97)
 - [ ] super-admin can add user for admin (#88) updated with (#97)
@@ -20,6 +20,6 @@
 - [x] Change ocserv installation method from deb repo to binary installer(R&D) (#111)
 - [ ] Separate password update logic from user profile updates (#121)
 - [ ] Implement bulk operations for Ocserv users with checkbox selection (#113)
-- [ ] Implement real-time Ocserv user stream processing Use RabbitMQ and change log_stream service(R&D)
-- [ ] total inactive user in dashboard summary (#120)
+- [x] Implement real-time Ocserv user stream processing change log_stream service(R&D)
+- [x] total inactive user in dashboard summary (#120)
 - [x] automatically delete inactive users after x days (#120) 
