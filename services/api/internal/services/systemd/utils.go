@@ -3,7 +3,6 @@ package systemd
 import (
 	"strconv"
 	"strings"
-	"time"
 )
 
 func ParseSystemctlShow(output string) OcservSystemdStatus {
@@ -26,8 +25,9 @@ func ParseSystemctlShow(output string) OcservSystemdStatus {
 		SubState:      data["SubState"],
 		UnitFileState: data["UnitFileState"],
 
-		MainPID:      toInt(data["MainPID"]),
-		StartTime:    parseTime(data["ExecMainStartTimestamp"]),
+		MainPID: toInt(data["MainPID"]),
+		//StartTime:    parseTime(data["ExecMainStartTimestamp"]),
+		StartTime:    data["ExecMainStartTimestamp"],
 		Memory:       toInt64(data["MemoryCurrent"]),
 		CPUUsageNSec: toInt64(data["CPUUsageNSec"]),
 		Tasks:        toInt(data["TasksCurrent"]),
@@ -44,9 +44,9 @@ func toInt64(s string) int64 {
 	return v
 }
 
-func parseTime(s string) time.Time {
-	// systemd format: Fri 2026-04-24 14:35:45 +0330
-	layout := "Mon 2006-01-02 15:04:05 -0700"
-	t, _ := time.Parse(layout, s)
-	return t
-}
+//func parseTime(s string) time.Time {
+//	// systemd format: Fri 2026-04-24 14:35:45 +0330
+//	layout := "Mon 2006-01-02 15:04:05 -0700"
+//	t, _ := time.Parse(layout, s)
+//	return t
+//}
