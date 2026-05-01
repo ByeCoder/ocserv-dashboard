@@ -113,17 +113,17 @@ watch(
                         </v-list-item>
 
                         <v-list-item class="mb-3">
-                            <v-list-item-title>{{ t('SUB_STATE') }}</v-list-item-title>
+                            <v-list-item-title class="text-capitalize">sub state</v-list-item-title>
                             <v-list-item-subtitle>{{ service.sub_state }}</v-list-item-subtitle>
                         </v-list-item>
 
                         <v-list-item class="mb-3">
-                            <v-list-item-title>{{ t('UNIT_STATE') }}</v-list-item-title>
+                            <v-list-item-title class="text-capitalize">unit state</v-list-item-title>
                             <v-list-item-subtitle>{{ service.unit_file_state }}</v-list-item-subtitle>
                         </v-list-item>
 
                         <v-list-item class="mb-3">
-                            <v-list-item-title>{{ t('START_TIME') }}</v-list-item-title>
+                            <v-list-item-title class="text-capitalize">start time</v-list-item-title>
                             <v-list-item-subtitle>{{ service.start_time }}</v-list-item-subtitle>
                         </v-list-item>
                     </v-list>
@@ -137,21 +137,21 @@ watch(
                         </v-list-item>
 
                         <v-list-item class="mb-3">
-                            <v-list-item-title>{{ t('MEMORY') }}</v-list-item-title>
+                            <v-list-item-title class="text-capitalize">memory</v-list-item-title>
                             <v-list-item-subtitle>
                                 {{ formatMemory(service.memory) }}
                             </v-list-item-subtitle>
                         </v-list-item>
 
                         <v-list-item class="mb-3">
-                            <v-list-item-title>{{ t('CPU_USAGE') }}</v-list-item-title>
+                            <v-list-item-title class="text-capitalize">cpu usage</v-list-item-title>
                             <v-list-item-subtitle>
                                 {{ formatCPU(service.cpu_usage_nsec) }}
                             </v-list-item-subtitle>
                         </v-list-item>
 
                         <v-list-item class="mb-3">
-                            <v-list-item-title>{{ t('TASKS') }}</v-list-item-title>
+                            <v-list-item-title class="text-capitalize" >tasks</v-list-item-title>
                             <v-list-item-subtitle>{{ service.tasks }}</v-list-item-subtitle>
                         </v-list-item>
                     </v-list>

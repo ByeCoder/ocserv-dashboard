@@ -26,7 +26,7 @@ const handleCurrentStatus = (v: ActionState) => {
 </script>
 
 <template>
-    <UiParentCard variant="flat" :title="t('SYSTEMD_STATUS_PAGE_TITLE')">
+    <UiParentCard variant="flat" :title="t('SYSTEMD_HANDLER_PAGE_TITLE')">
         <UiChildCard :title="t('STATUS')" class="px-5">
             <SystemdStatus @state="(s) => (state = s)" ref="childRef" :currentStatus="currentStatus"/>
         </UiChildCard>
