@@ -46,3 +46,4 @@
 ## 🐳 DevOps / Deployment
 
 - [ ] Publish official pre-built Docker images (#100)
+- [ ] Add real-time server resource monitoring (CPU, RAM, disk, overall usage) to the dashboard, similar to x-ui (#139)
