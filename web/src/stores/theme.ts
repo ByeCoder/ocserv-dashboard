@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import { useTheme } from 'vuetify';
-import { DARK_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from '@/plugins/vuetify';
+import vuetify, { DARK_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from '@/plugins/vuetify';
 
 type ThemeName = typeof LIGHT_THEME | typeof DARK_THEME;
 
@@ -19,6 +18,17 @@ function readStoredTheme(): ThemeName {
     return LIGHT_THEME;
 }
 
+function writeVuetifyTheme(name: ThemeName) {
+    // Access the vuetify singleton directly so this works from any context
+    // (event handlers, lifecycle hooks, etc.) without relying on inject().
+    vuetify.theme.global.name.value = name;
+    if (typeof document !== 'undefined') {
+        // Mirror the active theme on <html data-theme="..."> so non-Vue styles
+        // (preloader, raw CSS) can react to the same toggle.
+        document.documentElement.setAttribute('data-theme', name);
+    }
+}
+
 export const useThemeStore = defineStore('theme', {
     state: (): ThemeState => ({
         current: readStoredTheme()
@@ -30,17 +40,13 @@ export const useThemeStore = defineStore('theme', {
         apply(name: ThemeName) {
             this.current = name;
             localStorage.setItem(THEME_STORAGE_KEY, name);
-            const theme = useTheme();
-            theme.global.name.value = name;
+            writeVuetifyTheme(name);
         },
         toggle() {
             this.apply(this.current === DARK_THEME ? LIGHT_THEME : DARK_THEME);
         },
         sync() {
-            const theme = useTheme();
-            if (theme.global.name.value !== this.current) {
-                theme.global.name.value = this.current;
-            }
+            writeVuetifyTheme(this.current);
         }
     }
 });

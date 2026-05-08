@@ -658,12 +658,12 @@ onMounted(() => {
 
 <style scoped>
 tbody tr:nth-child(even) td {
-    background-color: #f5f5f5;
+    background-color: rgba(var(--v-theme-on-surface), 0.04);
 }
 
 @media (min-width: 992px) {
     tbody tr:nth-child(even) td {
-        background-color: #f5f5f5;
+        background-color: rgba(var(--v-theme-on-surface), 0.04);
     }
 
     tbody tr:nth-child(even) td:first-child {
