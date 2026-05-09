@@ -84,6 +84,28 @@ func NewHub(d Deps) *Hub {
 // Helpers
 // =============================================================================
 
+// SyncTelegramUsernameFromAPI calls Telegram getChat for this chat_id and, when
+// the user has a public username on their profile, persists it on every
+// telegram_accounts row for that chat. A numeric chat_id cannot be turned into
+// t.me/username without Telegram returning a username (getChat is authoritative).
+func (h *Hub) SyncTelegramUsernameFromAPI(ctx context.Context, chatID int64) {
+	cfg := tgbotapi.ChatInfoConfig{
+		ChatConfig: tgbotapi.ChatConfig{ChatID: chatID},
+	}
+	chat, err := h.deps.API.GetChat(cfg)
+	if err != nil {
+		logger.Warn("telegram_bot: getChat(%d) failed: %v", chatID, err)
+		return
+	}
+	un := strings.TrimPrefix(strings.TrimSpace(chat.UserName), "@")
+	if un == "" {
+		return
+	}
+	if err := h.deps.Repo.SetTelegramUsernameForChat(ctx, chatID, un); err != nil {
+		logger.Warn("telegram_bot: set telegram_username from getChat failed: %v", err)
+	}
+}
+
 // IsAdmin reports whether the chat ID is the configured admin chat.
 func (h *Hub) IsAdmin(ctx context.Context, chatID int64) bool {
 	settings, err := h.deps.Repo.Settings(ctx)
@@ -300,13 +322,7 @@ func (h *Hub) HandleStart(ctx context.Context, m *tgbotapi.Message) {
 	}
 	lang := h.LanguageFor(ctx, chatID)
 
-	// Opportunistically backfill the @username for any pre-existing linked
-	// rows of this chat (older builds stored an empty string at link time).
-	if uname := fromUsername(m); uname != "" {
-		if err := h.deps.Repo.RefreshUsernameForChat(ctx, chatID, uname); err != nil {
-			logger.Warn("telegram_bot: refresh telegram_username failed: %v", err)
-		}
-	}
+	h.SyncTelegramUsernameFromAPI(ctx, chatID)
 
 	if settings.AdminChatID != 0 && settings.AdminChatID == chatID {
 		text := i18n.T(lang, i18n.AdminWelcome, htmlEscape(h.deps.BrandName))
@@ -635,6 +651,7 @@ func (h *Hub) completeLink(ctx context.Context, chatID int64, username, password
 	if _, err := h.deps.Repo.UpsertAccount(ctx, chatID, tgUsername, lang, user.ID); err != nil {
 		logger.Warn("telegram_bot: failed to link account: %v", err)
 	}
+	h.SyncTelegramUsernameFromAPI(ctx, chatID)
 	h.deps.Sessions.Reset(chatID)
 	h.send(chatID, i18n.T(lang, i18n.AuthSuccess))
 	// Surface a one-line hint so the user immediately knows the linked

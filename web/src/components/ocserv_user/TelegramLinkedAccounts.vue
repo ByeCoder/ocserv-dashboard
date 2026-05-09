@@ -73,15 +73,7 @@ onMounted(load);
                         >
                             @{{ a.telegram_username }}
                         </a>
-                        <a
-                            v-else-if="a.chat_id"
-                            :href="`tg://user?id=${a.chat_id}`"
-                            class="text-warning d-inline-flex align-center"
-                        >
-                            <v-icon class="me-1" size="small">mdi-send</v-icon>
-                            {{ t('TELEGRAM_OPEN_CHAT') }}
-                        </a>
-                        <span v-else class="text-warning italic">—</span>
+                        <span v-else class="text-grey text-caption">{{ t('TELEGRAM_USERNAME_NOT_PUBLIC') }}</span>
                     </td>
                     <td class="text-uppercase">{{ a.language }}</td>
                     <td>{{ new Date(a.created_at).toLocaleString() }}</td>

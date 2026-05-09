@@ -94,13 +94,16 @@ func (r *Repository) UpsertAccount(ctx context.Context, chatID int64, telegramUs
 	return account, nil
 }
 
-func (r *Repository) RefreshUsernameForChat(ctx context.Context, chatID int64, telegramUsername string) error {
+// SetTelegramUsernameForChat writes the same public @username onto every linked
+// row for this private-chat ID. Using getChat (or Message.From) can yield the
+// handle even when older rows stored an empty string or NULL.
+func (r *Repository) SetTelegramUsernameForChat(ctx context.Context, chatID int64, telegramUsername string) error {
 	if telegramUsername == "" {
 		return nil
 	}
 	return r.db.WithContext(ctx).
 		Model(&models.TelegramAccount{}).
-		Where("chat_id = ? AND telegram_username <> ?", chatID, telegramUsername).
+		Where("chat_id = ?", chatID).
 		Update("telegram_username", telegramUsername).Error
 }
 

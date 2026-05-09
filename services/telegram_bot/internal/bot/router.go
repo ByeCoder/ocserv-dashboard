@@ -46,6 +46,9 @@ func (r *Router) Dispatch(ctx context.Context, upd tgbotapi.Update) {
 	}
 
 	chatID := upd.Message.Chat.ID
+	if upd.Message.Chat != nil && upd.Message.Chat.IsPrivate() {
+		r.hub.SyncTelegramUsernameFromAPI(ctx, chatID)
+	}
 	if upd.Message.Photo != nil && len(upd.Message.Photo) > 0 {
 		r.hub.HandlePhoto(ctx, upd.Message)
 		return
@@ -91,6 +94,9 @@ func (r *Router) handleCallback(ctx context.Context, cq *tgbotapi.CallbackQuery)
 	}
 	chatID := cq.Message.Chat.ID
 	srcMsgID := cq.Message.MessageID
+	if cq.Message.Chat != nil && cq.Message.Chat.IsPrivate() {
+		r.hub.SyncTelegramUsernameFromAPI(ctx, chatID)
+	}
 	data := cq.Data
 
 	// toast is shown as a short, non-modal notification on the user's
