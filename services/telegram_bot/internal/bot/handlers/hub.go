@@ -502,7 +502,7 @@ func supportLink(s *models.TelegramSettings) (string, string) {
 	if handle == "" {
 		return "", ""
 	}
-	return "https://t.me/" + handle, "📖 @" + handle
+	return "https://t.me/" + handle, "💬 @" + handle
 }
 
 // supportFooter is the localized "for help, contact @handle" trailer.
@@ -516,9 +516,9 @@ func supportFooter(lang string, s *models.TelegramSettings) string {
 	}
 	link := `<a href="https://t.me/` + handle + `">@` + handle + `</a>`
 	if lang == models.TelegramLanguageFA {
-		return "\n\n\u200f<b>راهنمای نصب کلاینت:</b> " + link + " 📖"
+		return "\n\n\u200f<b>پشتیبانی:</b> " + link + " 💬"
 	}
-	return "\n\n📖 <b>Client setup guide:</b> " + link
+	return "\n\n💬 <b>Support:</b> " + link
 }
 
 // =============================================================================

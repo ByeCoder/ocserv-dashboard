@@ -741,9 +741,9 @@ func supportLine(settings *models.TelegramSettings) string {
 	}
 	link := `<a href="https://t.me/` + handle + `">@` + handle + `</a>`
 	if isFa(settings) {
-		return "\n\n\u200f<blockquote><b>راهنمای نصب کلاینت:</b> " + link + " 📖</blockquote>"
+		return "\n\n\u200f<blockquote><b>پشتیبانی:</b> " + link + " 💬</blockquote>"
 	}
-	return "\n\n📖 <b>Client setup guide:</b> " + link
+	return "\n\n💬 <b>Support:</b> " + link
 }
 
 func formatRenewalMessage(settings *models.TelegramSettings, user *models.OcservUser, newExpire time.Time) string {
