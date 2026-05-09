@@ -90,6 +90,9 @@ func (ctl *Controller) UpdateSettings(c echo.Context) error {
 	if data.CardHolder != nil {
 		updates["card_holder"] = *data.CardHolder
 	}
+	if data.SupportUsername != nil {
+		updates["support_username"] = strings.TrimPrefix(strings.TrimSpace(*data.SupportUsername), "@")
+	}
 	if len(updates) == 0 {
 		return ctl.request.BadRequest(c, errors.New("no fields to update"))
 	}
@@ -428,6 +431,7 @@ func settingsToResponse(s *models.TelegramSettings) SettingsResponse {
 		OcservHost:          s.OcservHost,
 		CardNumber:          s.CardNumber,
 		CardHolder:          s.CardHolder,
+		SupportUsername:     s.SupportUsername,
 	}
 }
 
@@ -668,12 +672,13 @@ func formatAwaitingPaymentMessage(lang string, settings *models.TelegramSettings
 		receiptLine = "\n\n🧾 Send the receipt as a <b>photo</b> in this chat.\n📎 Photo only (not a file or link)."
 	}
 
+	support := supportLine(settings)
 	if fa {
 		return "\u200f<b>درخواست شما تایید شد! ✅</b>" +
-			replyBlock + cardLine + receiptLine + missingCard
+			replyBlock + cardLine + receiptLine + missingCard + support
 	}
 	return "✅ <b>Your request has been approved!</b>" +
-		replyBlock + cardLine + receiptLine + missingCard
+		replyBlock + cardLine + receiptLine + missingCard + support
 }
 
 func formatRejectedMessage(settings *models.TelegramSettings, adminNote string) string {
@@ -696,6 +701,7 @@ func formatNewAccountMessage(settings *models.TelegramSettings, user *models.Ocs
 	if host == "" {
 		host = "—"
 	}
+	support := supportLine(settings)
 	if isFa(settings) {
 		return fmt.Sprintf(
 			"\u200f<b>اکانت VPN شما آماده است! 🎉</b>\n\n"+
@@ -704,9 +710,9 @@ func formatNewAccountMessage(settings *models.TelegramSettings, user *models.Ocs
 				"\u200f<b>رمز عبور:</b> 🔑\n<pre>%s</pre>\n"+
 				"\u200f<b>اعتبار تا:</b> %s 📅\n"+
 				"\u200f<b>حجم:</b> %d GB 💾\n\n"+
-				"\u200fرمز عبور را در جای امنی ذخیره کنید. ⚠️",
+				"\u200fرمز عبور را در جای امنی ذخیره کنید. ⚠️%s",
 			htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
-			expireAt.Format("2006-01-02"), user.TrafficSize,
+			expireAt.Format("2006-01-02"), user.TrafficSize, support,
 		)
 	}
 	return fmt.Sprintf(
@@ -716,28 +722,47 @@ func formatNewAccountMessage(settings *models.TelegramSettings, user *models.Ocs
 			"🔑 <b>Password:</b>\n<pre>%s</pre>\n"+
 			"📅 <b>Expires:</b> %s\n"+
 			"💾 <b>Quota:</b> %d GB\n\n"+
-			"⚠️ Save your password in a safe place.",
+			"⚠️ Save your password in a safe place.%s",
 		htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
-		expireAt.Format("2006-01-02"), user.TrafficSize,
+		expireAt.Format("2006-01-02"), user.TrafficSize, support,
 	)
 }
 
+// supportLine returns the localized "for help, contact @support" line, or
+// an empty string if no support_username is configured. The leading "\n\n"
+// is included so callers can append unconditionally.
+func supportLine(settings *models.TelegramSettings) string {
+	if settings == nil {
+		return ""
+	}
+	handle := strings.TrimPrefix(strings.TrimSpace(settings.SupportUsername), "@")
+	if handle == "" {
+		return ""
+	}
+	link := `<a href="https://t.me/` + handle + `">@` + handle + `</a>`
+	if isFa(settings) {
+		return "\n\n\u200f<b>راهنمای نصب کلاینت:</b> " + link + " 📖"
+	}
+	return "\n\n📖 <b>Client setup guide:</b> " + link
+}
+
 func formatRenewalMessage(settings *models.TelegramSettings, user *models.OcservUser, newExpire time.Time) string {
+	support := supportLine(settings)
 	if isFa(settings) {
 		return fmt.Sprintf(
 			"\u200f<b>اکانت شما با موفقیت تمدید شد! ✅</b>\n\n"+
 				"\u200f<b>نام کاربری:</b> <code>%s</code> 👤\n"+
 				"\u200f<b>تاریخ انقضای جدید:</b> %s 📅\n"+
-				"\u200f<b>حجم جدید:</b> %d GB 💾",
-			htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize,
+				"\u200f<b>حجم جدید:</b> %d GB 💾%s",
+			htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize, support,
 		)
 	}
 	return fmt.Sprintf(
 		"✅ <b>Account renewed successfully!</b>\n\n"+
 			"👤 <b>Username:</b> <code>%s</code>\n"+
 			"📅 <b>New expiry:</b> %s\n"+
-			"💾 <b>New quota:</b> %d GB",
-		htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize,
+			"💾 <b>New quota:</b> %d GB%s",
+		htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize, support,
 	)
 }
 

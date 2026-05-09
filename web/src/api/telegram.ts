@@ -10,6 +10,7 @@ export interface TelegramSettings {
     ocserv_host: string;
     card_number: string;
     card_holder: string;
+    support_username: string;
 }
 
 export interface TelegramSettingsPatch {
@@ -21,6 +22,7 @@ export interface TelegramSettingsPatch {
     ocserv_host?: string;
     card_number?: string;
     card_holder?: string;
+    support_username?: string;
 }
 
 export interface TelegramPackage {

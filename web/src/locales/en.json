@@ -298,6 +298,8 @@
   "TELEGRAM_APPROVE_CARD_HOLDER_HINT": "optional override; defaults to Telegram settings",
   "TELEGRAM_REPLY_TO_USER": "Reply to customer (Telegram)",
   "TELEGRAM_REPLY_TO_USER_HINT": "shown to the user in Telegram together with payment instructions",
+  "TELEGRAM_SUPPORT_USERNAME": "Support / Client Setup Telegram Username",
+  "TELEGRAM_SUPPORT_USERNAME_HINT": "Telegram username (no @, e.g. masniper) shown to bot users for client install help",
   "TELEGRAM_PACKAGES": "packages",
   "TELEGRAM_PACKAGE_CREATE": "create package",
   "TELEGRAM_PACKAGE_SAVED": "package saved",

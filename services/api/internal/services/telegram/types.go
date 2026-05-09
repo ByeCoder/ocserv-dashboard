@@ -16,6 +16,7 @@ type SettingsResponse struct {
 	OcservHost          string `json:"ocserv_host"`
 	CardNumber          string `json:"card_number"`
 	CardHolder          string `json:"card_holder"`
+	SupportUsername     string `json:"support_username"`
 }
 
 // PatchSettingsData accepts partial updates from admin UI.
@@ -28,6 +29,8 @@ type PatchSettingsData struct {
 	OcservHost          *string `json:"ocserv_host"`
 	CardNumber          *string `json:"card_number" validate:"omitempty,max=64"`
 	CardHolder          *string `json:"card_holder" validate:"omitempty,max=128"`
+	// SupportUsername must be a Telegram handle without @ (5–32 chars, a–z 0–9 _).
+	SupportUsername     *string `json:"support_username" validate:"omitempty,max=64"`
 }
 
 type TestData struct {

@@ -19,7 +19,8 @@ const settings = ref<TelegramSettings>({
     default_language: 'en',
     ocserv_host: '',
     card_number: '',
-    card_holder: ''
+    card_holder: '',
+    support_username: ''
 });
 
 const load = async () => {
@@ -43,7 +44,8 @@ const save = async () => {
             default_language: settings.value.default_language,
             ocserv_host: settings.value.ocserv_host,
             card_number: settings.value.card_number,
-            card_holder: settings.value.card_holder
+            card_holder: settings.value.card_holder,
+            support_username: (settings.value.support_username || '').replace(/^@+/, '').trim()
         });
         settings.value = res.data;
         snackbar.show({
@@ -190,6 +192,18 @@ onMounted(load);
                                 variant="outlined"
                                 density="comfortable"
                                 :hint="t('TELEGRAM_CARD_HOLDER_HINT')"
+                                persistent-hint
+                            />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field
+                                v-model="settings.support_username"
+                                :label="t('TELEGRAM_SUPPORT_USERNAME')"
+                                placeholder="masniper"
+                                prefix="@"
+                                variant="outlined"
+                                density="comfortable"
+                                :hint="t('TELEGRAM_SUPPORT_USERNAME_HINT')"
                                 persistent-hint
                             />
                         </v-col>

@@ -32,6 +32,10 @@ type TelegramSettings struct {
 	OcservHost          string    `json:"ocserv_host" gorm:"type:varchar(255)"`
 	CardNumber          string    `json:"card_number" gorm:"type:varchar(64)"`
 	CardHolder          string    `json:"card_holder" gorm:"type:varchar(128)"`
+	// SupportUsername is a Telegram username (no @, no URL) shown to users as a
+	// contact for client setup/help. Rendered as @handle and an inline t.me/...
+	// button by the bot.
+	SupportUsername     string    `json:"support_username" gorm:"type:varchar(64)"`
 	UpdatedAt           time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
 

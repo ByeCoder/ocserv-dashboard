@@ -298,6 +298,8 @@
   "TELEGRAM_APPROVE_CARD_HOLDER_HINT": "اختیاری؛ در صورت خالی بودن از تنظیمات تلگرام",
   "TELEGRAM_REPLY_TO_USER": "پاسخ به کاربر در تلگرام",
   "TELEGRAM_REPLY_TO_USER_HINT": "این متن در پیام تایید به کاربر نمایش داده می‌شود",
+  "TELEGRAM_SUPPORT_USERNAME": "آیدی تلگرام پشتیبانی / راهنمای نصب کلاینت",
+  "TELEGRAM_SUPPORT_USERNAME_HINT": "آیدی تلگرام بدون @ (مثل masniper) که در ربات به کاربر نمایش داده می‌شود",
   "TELEGRAM_PACKAGES": "پکیج‌ها",
   "TELEGRAM_PACKAGE_CREATE": "ایجاد پکیج",
   "TELEGRAM_PACKAGE_SAVED": "پکیج ذخیره شد",

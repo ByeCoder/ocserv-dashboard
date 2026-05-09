@@ -473,8 +473,52 @@ func (h *Hub) SetLanguage(ctx context.Context, chatID int64, newLang string, src
 }
 
 func (h *Hub) ShowHelp(ctx context.Context, chatID int64, lang string, srcMsgID int) {
+	settings, _ := h.deps.Repo.Settings(ctx)
+	text := i18n.T(lang, i18n.HelpText) + supportFooter(lang, settings)
+
+	if link, label := supportLink(settings); link != "" {
+		row1 := tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonURL(label, link),
+		)
+		row2 := tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnBack), cbMainMenu),
+		)
+		kb := tgbotapi.NewInlineKeyboardMarkup(row1, row2)
+		h.respond(chatID, srcMsgID, text, &kb)
+		return
+	}
+
 	kb := backToMenuKeyboard(lang)
-	h.respond(chatID, srcMsgID, i18n.T(lang, i18n.HelpText), &kb)
+	h.respond(chatID, srcMsgID, text, &kb)
+}
+
+// supportLink returns the t.me URL and a localized button label, or empty
+// strings when no support_username is configured.
+func supportLink(s *models.TelegramSettings) (string, string) {
+	if s == nil {
+		return "", ""
+	}
+	handle := strings.TrimPrefix(strings.TrimSpace(s.SupportUsername), "@")
+	if handle == "" {
+		return "", ""
+	}
+	return "https://t.me/" + handle, "📖 @" + handle
+}
+
+// supportFooter is the localized "for help, contact @handle" trailer.
+func supportFooter(lang string, s *models.TelegramSettings) string {
+	if s == nil {
+		return ""
+	}
+	handle := strings.TrimPrefix(strings.TrimSpace(s.SupportUsername), "@")
+	if handle == "" {
+		return ""
+	}
+	link := `<a href="https://t.me/` + handle + `">@` + handle + `</a>`
+	if lang == models.TelegramLanguageFA {
+		return "\n\n\u200f<b>راهنمای نصب کلاینت:</b> " + link + " 📖"
+	}
+	return "\n\n📖 <b>Client setup guide:</b> " + link
 }
 
 // =============================================================================
