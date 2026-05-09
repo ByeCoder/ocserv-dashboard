@@ -43,10 +43,12 @@ var fa = map[Key]string{
 	AskMessage:     rlm + "<blockquote>می‌توانید توضیح اختیاری برای ادمین بنویسید، یا /skip را بفرستید تا رد شوید: 💬</blockquote>",
 	AskReceipt:     rlm + "<blockquote>لطفاً تصویر رسید پرداخت را به‌صورت <b>عکس</b> ارسال کنید. 🧾</blockquote>",
 
-	AuthSuccess:   rlm + "<blockquote>اکانت با موفقیت لینک شد. ✅</blockquote>",
-	AuthFail:      rlm + "<blockquote>نام کاربری یا رمز عبور اشتباه است. ❌</blockquote>",
-	AuthLocked:    rlm + "<blockquote>اکانت شما قفل شده است. لطفاً با ادمین تماس بگیرید. 🔒</blockquote>",
-	AlreadyLinked: rlm + "<blockquote>این اکانت قبلاً به چت تلگرام شما لینک شده است. ℹ️</blockquote>",
+	AuthSuccess:      rlm + "<blockquote>اکانت با موفقیت لینک شد. ✅</blockquote>",
+	AuthFail:         rlm + "<blockquote>نام کاربری یا رمز عبور اشتباه است. ❌</blockquote>",
+	AuthLocked:       rlm + "<blockquote>اکانت شما قفل شده است. لطفاً با ادمین تماس بگیرید. 🔒</blockquote>",
+	LinkedLockedHint: rlm + "<blockquote>این اکانت در حال حاضر <b>قفل</b> است (پایان حجم یا انقضا). 🔒\n" +
+		"از منوی <b>اکانت‌های من</b> روی <b>تمدید</b> بزنید تا درخواست تمدید ثبت شود. 🔄</blockquote>",
+	AlreadyLinked:    rlm + "<blockquote>این اکانت قبلاً به چت تلگرام شما لینک شده است. ℹ️</blockquote>",
 
 	NoAccounts:  rlm + "<blockquote>هنوز اکانتی لینک نکرده‌اید. از منوی اصلی <b>افزودن اکانت</b> را انتخاب کنید. 📭</blockquote>",
 	NoPackages:  rlm + "<blockquote>در حال حاضر پکیج فعالی وجود ندارد. لطفاً بعداً مراجعه کنید. 📦</blockquote>",

@@ -33,6 +33,8 @@ var en = map[Key]string{
 	AuthSuccess:       "✅ Account linked successfully.",
 	AuthFail:          "❌ Invalid username or password.",
 	AuthLocked:        "🔒 Your account is locked. Please contact the administrator.",
+	LinkedLockedHint:  "🔒 This account is currently <b>locked</b> (quota exhausted or expired). " +
+		"Open <b>My Accounts</b> and tap <b>Renew</b> to request a renewal.",
 	AlreadyLinked:     "ℹ️ This account is already linked to your Telegram chat.",
 	NoAccounts:        "📭 You have not linked any accounts yet. Use <b>Add Account</b> from the main menu.",
 	NoPackages:        "📦 No packages are available right now. Please try again later.",

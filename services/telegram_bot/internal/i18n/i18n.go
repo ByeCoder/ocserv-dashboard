@@ -28,6 +28,7 @@ const (
 	AuthSuccess       Key = "auth_success"
 	AuthFail          Key = "auth_fail"
 	AuthLocked        Key = "auth_locked"
+	LinkedLockedHint  Key = "linked_locked_hint"
 	AlreadyLinked     Key = "already_linked"
 	NoAccounts        Key = "no_accounts"
 	NoPackages        Key = "no_packages"

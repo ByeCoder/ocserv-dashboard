@@ -609,8 +609,6 @@ func (h *Hub) completeLink(ctx context.Context, chatID int64, username, password
 	if err != nil {
 		h.deps.Sessions.Reset(chatID)
 		switch {
-		case errors.Is(err, auth.ErrUserLocked):
-			h.send(chatID, i18n.T(lang, i18n.AuthLocked))
 		case errors.Is(err, auth.ErrUserInactive):
 			h.send(chatID, i18n.T(lang, i18n.OcservDeactivated))
 		default:
@@ -637,6 +635,11 @@ func (h *Hub) completeLink(ctx context.Context, chatID int64, username, password
 	}
 	h.deps.Sessions.Reset(chatID)
 	h.send(chatID, i18n.T(lang, i18n.AuthSuccess))
+	if user.IsLocked {
+		// Surface a one-line hint so the user immediately knows the linked
+		// account is locked and how to renew it.
+		h.send(chatID, i18n.T(lang, i18n.LinkedLockedHint))
+	}
 	h.SendMainMenu(ctx, chatID, lang, 0)
 }
 

@@ -26,6 +26,11 @@ func NewVerifier(repo *repository.Repository) *Verifier {
 // Verify validates the given username/password against the ocserv_users table.
 // On success it returns the matching user; the caller is responsible for
 // linking it to a Telegram chat.
+//
+// A locked account (typically one whose monthly quota has been exhausted) is
+// intentionally NOT rejected here: we want the user to still be able to link
+// it, inspect its usage, and request a renewal through the bot. Only fully
+// deactivated accounts (DeactivatedAt set) are blocked.
 func (v *Verifier) Verify(ctx context.Context, username, password string) (*models.OcservUser, error) {
 	user, err := v.repo.OcservUserByUsername(ctx, username)
 	if err != nil {
@@ -33,9 +38,6 @@ func (v *Verifier) Verify(ctx context.Context, username, password string) (*mode
 	}
 	if user.Password != password {
 		return nil, ErrInvalidCreds
-	}
-	if user.IsLocked {
-		return nil, ErrUserLocked
 	}
 	if user.DeactivatedAt != nil {
 		return nil, ErrUserInactive
