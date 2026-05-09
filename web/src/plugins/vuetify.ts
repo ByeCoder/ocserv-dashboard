@@ -29,7 +29,8 @@ export default createVuetify({
     components,
     directives,
     locale: {
-        adapter: createVueI18nAdapter({ i18n: i18n as any, useI18n })
+        adapter: createVueI18nAdapter({ i18n: i18n as any, useI18n }),
+        rtl: { fa: true, ar: true, he: true, ur: true }
     },
     date: {
         adapter: DateFnsAdapter,

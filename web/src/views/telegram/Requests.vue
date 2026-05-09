@@ -6,6 +6,8 @@ import {
     type TelegramRequestModel,
     type TelegramPackage
 } from '@/api/telegram';
+import { OcservGroupsApi } from '@/api';
+import { getAuthorization } from '@/utils/request';
 import { useSnackbarStore } from '@/stores/snackbar';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 
@@ -31,6 +33,7 @@ const owner = ref('');
 const groupName = ref('');
 const receiptObjectUrl = ref<string | null>(null);
 const packages = ref<TelegramPackage[]>([]);
+const groups = ref<string[]>(['defaults']);
 
 const STATUS_BY_TAB: Record<string, string> = {
     pending: 'pending',
@@ -56,6 +59,17 @@ const load = async () => {
 const loadPackages = async () => {
     const res = await TelegramAPI.listPackages(true);
     packages.value = res.data;
+};
+
+const loadGroups = async () => {
+    try {
+        const api = new OcservGroupsApi();
+        const res = await api.ocservGroupsLookupGet({ ...getAuthorization() });
+        const list = (res.data || []) as string[];
+        groups.value = list.length ? list : ['defaults'];
+    } catch {
+        groups.value = ['defaults'];
+    }
 };
 
 const openDetails = async (req: TelegramRequestModel) => {
@@ -161,7 +175,7 @@ watch(tab, () => {
 });
 
 onMounted(async () => {
-    await loadPackages();
+    await Promise.all([loadPackages(), loadGroups()]);
     await load();
 });
 
@@ -333,12 +347,13 @@ onBeforeUnmount(() => {
                                 />
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-text-field
+                                <v-select
                                     v-model="groupName"
+                                    :items="groups"
                                     :label="t('GROUP')"
-                                    placeholder="defaults"
                                     variant="outlined"
                                     density="comfortable"
+                                    clearable
                                 />
                             </v-col>
                         </v-row>

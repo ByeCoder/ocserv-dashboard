@@ -111,6 +111,15 @@
                 } catch (e) {
                     document.documentElement.setAttribute('data-theme', 'OceanLight');
                 }
+
+                try {
+                    var lang = localStorage.getItem('language') || 'en';
+                    var rtl = lang === 'fa' || lang === 'ar';
+                    document.documentElement.setAttribute('lang', lang);
+                    document.documentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+                } catch (e) {
+                    /* ignore */
+                }
             })();
         </script>
     </head>
