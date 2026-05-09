@@ -212,6 +212,27 @@ func mainMenuKeyboard(lang string) tgbotapi.InlineKeyboardMarkup {
 	)
 }
 
+// adminUserViewKeyboard is the regular user menu with an extra "Back to Admin" row at the bottom,
+// shown when the admin is previewing the user view.
+func adminUserViewKeyboard(lang string) tgbotapi.InlineKeyboardMarkup {
+	return tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnAddAccount), cbAddAccount),
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnMyAccounts), cbMyAccounts),
+		),
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnNewOrder), cbNewOrder),
+		),
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnLanguage), cbLanguage),
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnHelp), cbHelp),
+		),
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnAdminBack), cbAdminMenu),
+		),
+	)
+}
+
 func languageKeyboard(lang string) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
@@ -277,16 +298,15 @@ func (h *Hub) HandleStart(ctx context.Context, m *tgbotapi.Message) {
 		return
 	}
 	lang := h.LanguageFor(ctx, chatID)
-	welcome := i18n.T(lang, i18n.Welcome, htmlEscape(h.deps.BrandName))
 
 	if settings.AdminChatID != 0 && settings.AdminChatID == chatID {
-		text := welcome + "\n\n" + i18n.T(lang, i18n.AdminMenu)
+		text := i18n.T(lang, i18n.AdminWelcome, htmlEscape(h.deps.BrandName))
 		kb := adminMenuKeyboard(lang, panelURL(settings))
 		h.sendKB(chatID, text, kb)
 		return
 	}
 
-	text := welcome + "\n\n" + i18n.T(lang, i18n.MainMenu)
+	text := i18n.T(lang, i18n.Welcome, htmlEscape(h.deps.BrandName)) + "\n\n" + i18n.T(lang, i18n.MainMenu)
 	kb := mainMenuKeyboard(lang)
 	h.sendKB(chatID, text, kb)
 }
@@ -303,14 +323,21 @@ func (h *Hub) SendMainMenu(ctx context.Context, chatID int64, lang string, srcMs
 }
 
 // SendUserMenu always renders the user menu, even for the admin chat.
-// Used by the "user view" admin shortcut.
+// When called for the admin, it adds a "Back to Admin" button so they
+// can return to the admin panel at any time.
 func (h *Hub) SendUserMenu(ctx context.Context, chatID int64, lang string, srcMsgID int) {
+	if h.IsAdmin(ctx, chatID) {
+		kb := adminUserViewKeyboard(lang)
+		h.respond(chatID, srcMsgID, i18n.T(lang, i18n.MainMenu), &kb)
+		return
+	}
 	kb := mainMenuKeyboard(lang)
 	h.respond(chatID, srcMsgID, i18n.T(lang, i18n.MainMenu), &kb)
 }
 
 // SendAdminMenu shows the admin actions panel.
 func (h *Hub) SendAdminMenu(ctx context.Context, chatID int64, lang string, srcMsgID int) {
+	h.sendTyping(chatID)
 	settings, _ := h.deps.Repo.Settings(ctx)
 	kb := adminMenuKeyboard(lang, panelURL(settings))
 	h.respond(chatID, srcMsgID, i18n.T(lang, i18n.AdminMenu), &kb)

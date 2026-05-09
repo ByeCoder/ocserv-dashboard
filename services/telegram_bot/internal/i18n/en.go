@@ -67,12 +67,16 @@ var en = map[Key]string{
 	OcservDeactivated: "⛔ This account is deactivated.",
 	RateLimited:       "🚦 Too many attempts. Please wait a minute and try again.",
 
-	AdminMenu:        "🛡 <b>Admin menu</b>\nPick an action:",
-	BtnAdminPending:  "📥 Pending",
-	BtnAdminReceipts: "🧾 Receipts",
-	BtnAdminStats:    "📊 Stats",
-	BtnAdminUserView: "👤 User view",
-	BtnOpenPanel:     "🌐 Open panel",
+	AdminWelcome: "🛡 <b>Admin Panel — %s</b>\n\n" +
+		"You are logged in as the <b>administrator</b>.\n" +
+		"Use the buttons below to manage bot requests and monitor activity.",
+	AdminMenu:        "🛡 <b>Admin Panel</b>\nSelect an action:",
+	BtnAdminPending:  "📥 Pending Requests",
+	BtnAdminReceipts: "🧾 Payment Receipts",
+	BtnAdminStats:    "📊 Statistics",
+	BtnAdminUserView: "👤 Switch to User View",
+	BtnAdminBack:     "🔙 Back to Admin Panel",
+	BtnOpenPanel:     "🌐 Open Web Panel",
 	AdminNoPending:   "📭 No pending requests.",
 	AdminNoReceipts:  "📭 No receipts to confirm.",
 	AdminStatsText: "📊 <b>Bot stats</b>\n\n" +

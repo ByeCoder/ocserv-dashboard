@@ -17,7 +17,9 @@ const settings = ref<TelegramSettings>({
     admin_chat_id: 0,
     low_quota_threshold_mb: 200,
     default_language: 'en',
-    ocserv_host: ''
+    ocserv_host: '',
+    card_number: '',
+    card_holder: ''
 });
 
 const load = async () => {
@@ -39,7 +41,9 @@ const save = async () => {
             admin_chat_id: Number(settings.value.admin_chat_id) || 0,
             low_quota_threshold_mb: Number(settings.value.low_quota_threshold_mb) || 200,
             default_language: settings.value.default_language,
-            ocserv_host: settings.value.ocserv_host
+            ocserv_host: settings.value.ocserv_host,
+            card_number: settings.value.card_number,
+            card_holder: settings.value.card_holder
         });
         settings.value = res.data;
         snackbar.show({
@@ -167,6 +171,26 @@ onMounted(load);
                                 variant="outlined"
                                 density="comfortable"
                                 :hint="t('TELEGRAM_OCSERV_HOST_HINT')"
+                            />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field
+                                v-model="settings.card_number"
+                                :label="t('TELEGRAM_CARD_NUMBER')"
+                                variant="outlined"
+                                density="comfortable"
+                                :hint="t('TELEGRAM_CARD_NUMBER_HINT')"
+                                persistent-hint
+                            />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field
+                                v-model="settings.card_holder"
+                                :label="t('TELEGRAM_CARD_HOLDER')"
+                                variant="outlined"
+                                density="comfortable"
+                                :hint="t('TELEGRAM_CARD_HOLDER_HINT')"
+                                persistent-hint
                             />
                         </v-col>
                     </v-row>

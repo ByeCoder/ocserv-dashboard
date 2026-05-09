@@ -30,6 +30,8 @@ type TelegramSettings struct {
 	LowQuotaThresholdMB int       `json:"low_quota_threshold_mb" gorm:"default:200"`
 	DefaultLanguage     string    `json:"default_language" gorm:"type:varchar(8);default:'en'"`
 	OcservHost          string    `json:"ocserv_host" gorm:"type:varchar(255)"`
+	CardNumber          string    `json:"card_number" gorm:"type:varchar(64)"`
+	CardHolder          string    `json:"card_holder" gorm:"type:varchar(128)"`
 	UpdatedAt           time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
 

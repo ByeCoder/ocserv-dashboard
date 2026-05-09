@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -82,6 +83,12 @@ func (ctl *Controller) UpdateSettings(c echo.Context) error {
 	}
 	if data.OcservHost != nil {
 		updates["ocserv_host"] = *data.OcservHost
+	}
+	if data.CardNumber != nil {
+		updates["card_number"] = *data.CardNumber
+	}
+	if data.CardHolder != nil {
+		updates["card_holder"] = *data.CardHolder
 	}
 	if len(updates) == 0 {
 		return ctl.request.BadRequest(c, errors.New("no fields to update"))
@@ -415,6 +422,8 @@ func settingsToResponse(s *models.TelegramSettings) SettingsResponse {
 		LowQuotaThresholdMB: s.LowQuotaThresholdMB,
 		DefaultLanguage:     s.DefaultLanguage,
 		OcservHost:          s.OcservHost,
+		CardNumber:          s.CardNumber,
+		CardHolder:          s.CardHolder,
 	}
 }
 
@@ -527,7 +536,7 @@ func (ctl *Controller) deliverRenewal(
 		return ctl.request.BadRequest(c, err)
 	}
 
-	go ctl.notifyDelivery(req.ChatID, settings, formatRenewalMessage(user, newExpire))
+	go ctl.notifyDelivery(req.ChatID, settings, formatRenewalMessage(settings, user, newExpire))
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":   "delivered",
 		"username": user.Username,
@@ -554,11 +563,8 @@ func (ctl *Controller) notifyAwaitingPayment(req *models.TelegramRequest) {
 	if err != nil || settings.BotToken == "" || !settings.Enabled {
 		return
 	}
-	msg := "Your request has been approved. Please send the payment receipt as a photo to this chat."
-	if isFa(settings) {
-		msg = "درخواست شما تایید شد. لطفاً تصویر رسید پرداخت را به همین چت ارسال کنید."
-	}
-	_ = sendTelegramMessage(settings.BotToken, req.ChatID, msg)
+	msg := formatAwaitingPaymentMessage(settings)
+	_ = sendTelegramHTMLMessage(settings.BotToken, req.ChatID, msg)
 }
 
 func (ctl *Controller) notifyRejected(req *models.TelegramRequest) {
@@ -566,57 +572,104 @@ func (ctl *Controller) notifyRejected(req *models.TelegramRequest) {
 	if err != nil || settings.BotToken == "" || !settings.Enabled {
 		return
 	}
-	msg := "Your request was rejected by the administrator."
-	if req.AdminNote != "" {
-		msg = msg + "\nNote: " + req.AdminNote
-	}
-	if isFa(settings) {
-		msg = "درخواست شما توسط ادمین رد شد."
-		if req.AdminNote != "" {
-			msg = msg + "\nتوضیح: " + req.AdminNote
-		}
-	}
-	_ = sendTelegramMessage(settings.BotToken, req.ChatID, msg)
+	msg := formatRejectedMessage(settings, req.AdminNote)
+	_ = sendTelegramHTMLMessage(settings.BotToken, req.ChatID, msg)
 }
 
 func (ctl *Controller) notifyDelivery(chatID int64, settings *models.TelegramSettings, message string) {
 	if settings == nil || settings.BotToken == "" || !settings.Enabled {
 		return
 	}
-	_ = sendTelegramMessage(settings.BotToken, chatID, message)
+	_ = sendTelegramHTMLMessage(settings.BotToken, chatID, message)
+}
+
+func formatAwaitingPaymentMessage(settings *models.TelegramSettings) string {
+	cardLine := ""
+	if settings.CardNumber != "" {
+		holder := settings.CardHolder
+		if holder == "" {
+			holder = "—"
+		}
+		if isFa(settings) {
+			cardLine = fmt.Sprintf("\n\n💳 <b>شماره کارت برای واریز:</b>\n<pre>%s</pre>دارنده: %s",
+				htmlEsc(settings.CardNumber), htmlEsc(holder))
+		} else {
+			cardLine = fmt.Sprintf("\n\n💳 <b>Payment card:</b>\n<pre>%s</pre>Holder: %s",
+				htmlEsc(settings.CardNumber), htmlEsc(holder))
+		}
+	}
+	if isFa(settings) {
+		return "✅ <b>درخواست شما تایید شد!</b>\n\n" +
+			"🧾 لطفاً تصویر رسید پرداخت را به‌صورت <b>عکس</b> به همین چت ارسال کنید." +
+			cardLine
+	}
+	return "✅ <b>Your request has been approved!</b>\n\n" +
+		"🧾 Please send the payment receipt as a <b>photo</b> to this chat." +
+		cardLine
+}
+
+func formatRejectedMessage(settings *models.TelegramSettings, adminNote string) string {
+	if isFa(settings) {
+		msg := "❌ <b>درخواست شما توسط ادمین رد شد.</b>"
+		if adminNote != "" {
+			msg += "\n\n📝 <b>دلیل:</b> " + htmlEsc(adminNote)
+		}
+		return msg
+	}
+	msg := "❌ <b>Your request was rejected by the administrator.</b>"
+	if adminNote != "" {
+		msg += "\n\n📝 <b>Reason:</b> " + htmlEsc(adminNote)
+	}
+	return msg
 }
 
 func formatNewAccountMessage(settings *models.TelegramSettings, user *models.OcservUser, plainPassword string, expireAt time.Time) string {
 	host := settings.OcservHost
 	if host == "" {
-		host = "<server>"
+		host = "—"
 	}
 	if isFa(settings) {
 		return fmt.Sprintf(
-			"اکانت شما آماده شد:\n"+
-				"سرور: %s\n"+
-				"نام کاربری: %s\n"+
-				"رمز عبور: %s\n"+
-				"اعتبار تا: %s\n"+
-				"حجم: %d GB",
-			host, user.Username, plainPassword, expireAt.Format("2006-01-02"), user.TrafficSize,
+			"🎉 <b>اکانت VPN شما آماده است!</b>\n\n"+
+				"🌐 <b>سرور:</b> <code>%s</code>\n"+
+				"👤 <b>نام کاربری:</b>\n<pre>%s</pre>\n"+
+				"🔑 <b>رمز عبور:</b>\n<pre>%s</pre>\n"+
+				"📅 <b>اعتبار تا:</b> %s\n"+
+				"💾 <b>حجم:</b> %d GB\n\n"+
+				"⚠️ رمز عبور را در جای امنی ذخیره کنید.",
+			htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
+			expireAt.Format("2006-01-02"), user.TrafficSize,
 		)
 	}
 	return fmt.Sprintf(
-		"Your account is ready:\n"+
-			"Server: %s\n"+
-			"Username: %s\n"+
-			"Password: %s\n"+
-			"Expires: %s\n"+
-			"Quota: %d GB",
-		host, user.Username, plainPassword, expireAt.Format("2006-01-02"), user.TrafficSize,
+		"🎉 <b>Your VPN account is ready!</b>\n\n"+
+			"🌐 <b>Server:</b> <code>%s</code>\n"+
+			"👤 <b>Username:</b>\n<pre>%s</pre>\n"+
+			"🔑 <b>Password:</b>\n<pre>%s</pre>\n"+
+			"📅 <b>Expires:</b> %s\n"+
+			"💾 <b>Quota:</b> %d GB\n\n"+
+			"⚠️ Save your password in a safe place.",
+		htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
+		expireAt.Format("2006-01-02"), user.TrafficSize,
 	)
 }
 
-func formatRenewalMessage(user *models.OcservUser, newExpire time.Time) string {
+func formatRenewalMessage(settings *models.TelegramSettings, user *models.OcservUser, newExpire time.Time) string {
+	if isFa(settings) {
+		return fmt.Sprintf(
+			"✅ <b>اکانت شما با موفقیت تمدید شد!</b>\n\n"+
+				"👤 <b>نام کاربری:</b> <code>%s</code>\n"+
+				"📅 <b>تاریخ انقضای جدید:</b> %s\n"+
+				"💾 <b>حجم جدید:</b> %d GB",
+			htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize,
+		)
+	}
 	return fmt.Sprintf(
-		"Account %s renewed successfully.\nNew expire date: %s",
-		user.Username, newExpire.Format("2006-01-02"),
+		"✅ <b>Account renewed successfully!</b>\n\n"+
+			"👤 <b>Username:</b> <code>%s</code>\n"+
+			"📅 <b>New expiry:</b> %s\n"+
+			"💾 <b>New quota:</b> %d GB",
+		htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize,
 	)
 }
 
@@ -675,11 +728,32 @@ func parseUsernameFromGetMe(body []byte) string {
 	return string(body[idx:end])
 }
 
+// htmlEsc escapes special HTML characters for safe inclusion in HTML parse-mode messages.
+func htmlEsc(s string) string {
+	s = strings.ReplaceAll(s, "&", "&amp;")
+	s = strings.ReplaceAll(s, "<", "&lt;")
+	s = strings.ReplaceAll(s, ">", "&gt;")
+	s = strings.ReplaceAll(s, "\"", "&quot;")
+	return s
+}
+
 func sendTelegramMessage(token string, chatID int64, text string) error {
+	return sendTelegramMessageWithMode(token, chatID, text, "")
+}
+
+func sendTelegramHTMLMessage(token string, chatID int64, text string) error {
+	return sendTelegramMessageWithMode(token, chatID, text, "HTML")
+}
+
+func sendTelegramMessageWithMode(token string, chatID int64, text, parseMode string) error {
 	endpoint := fmt.Sprintf("%s/bot%s/sendMessage", telegramAPIBase, token)
 	form := url.Values{}
 	form.Set("chat_id", strconv.FormatInt(chatID, 10))
 	form.Set("text", text)
+	form.Set("disable_web_page_preview", "true")
+	if parseMode != "" {
+		form.Set("parse_mode", parseMode)
+	}
 	client := &http.Client{Timeout: telegramHTTPTimeout}
 	resp, err := client.PostForm(endpoint, form)
 	if err != nil {

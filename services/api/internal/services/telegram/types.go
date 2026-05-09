@@ -14,6 +14,8 @@ type SettingsResponse struct {
 	LowQuotaThresholdMB int    `json:"low_quota_threshold_mb"`
 	DefaultLanguage     string `json:"default_language"`
 	OcservHost          string `json:"ocserv_host"`
+	CardNumber          string `json:"card_number"`
+	CardHolder          string `json:"card_holder"`
 }
 
 // PatchSettingsData accepts partial updates from admin UI.
@@ -24,6 +26,8 @@ type PatchSettingsData struct {
 	LowQuotaThresholdMB *int    `json:"low_quota_threshold_mb" validate:"omitempty,min=10,max=10240"`
 	DefaultLanguage     *string `json:"default_language" validate:"omitempty,oneof=en fa"`
 	OcservHost          *string `json:"ocserv_host"`
+	CardNumber          *string `json:"card_number" validate:"omitempty,max=64"`
+	CardHolder          *string `json:"card_holder" validate:"omitempty,max=128"`
 }
 
 type TestData struct {

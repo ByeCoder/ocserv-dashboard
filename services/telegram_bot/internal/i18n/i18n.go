@@ -51,11 +51,13 @@ const (
 	RateLimited       Key = "rate_limited"
 
 	// Admin-only catalog
+	AdminWelcome     Key = "admin_welcome"
 	AdminMenu        Key = "admin_menu"
 	BtnAdminPending  Key = "btn_admin_pending"
 	BtnAdminReceipts Key = "btn_admin_receipts"
 	BtnAdminStats    Key = "btn_admin_stats"
 	BtnAdminUserView Key = "btn_admin_user_view"
+	BtnAdminBack     Key = "btn_admin_back"
 	BtnOpenPanel     Key = "btn_open_panel"
 	AdminNoPending   Key = "admin_no_pending"
 	AdminNoReceipts  Key = "admin_no_receipts"

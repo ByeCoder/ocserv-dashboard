@@ -8,6 +8,8 @@ export interface TelegramSettings {
     low_quota_threshold_mb: number;
     default_language: 'en' | 'fa';
     ocserv_host: string;
+    card_number: string;
+    card_holder: string;
 }
 
 export interface TelegramSettingsPatch {
@@ -17,6 +19,8 @@ export interface TelegramSettingsPatch {
     low_quota_threshold_mb?: number;
     default_language?: 'en' | 'fa';
     ocserv_host?: string;
+    card_number?: string;
+    card_holder?: string;
 }
 
 export interface TelegramPackage {
