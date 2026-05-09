@@ -674,8 +674,8 @@ func formatAwaitingPaymentMessage(lang string, settings *models.TelegramSettings
 
 	support := supportLine(settings)
 	if fa {
-		return "\u200f<b>درخواست شما تایید شد! ✅</b>" +
-			replyBlock + cardLine + receiptLine + missingCard + support
+		return "\u200f<blockquote><b>درخواست شما تایید شد! ✅</b>" +
+			replyBlock + cardLine + receiptLine + missingCard + "</blockquote>" + support
 	}
 	return "✅ <b>Your request has been approved!</b>" +
 		replyBlock + cardLine + receiptLine + missingCard + support
@@ -683,11 +683,11 @@ func formatAwaitingPaymentMessage(lang string, settings *models.TelegramSettings
 
 func formatRejectedMessage(settings *models.TelegramSettings, adminNote string) string {
 	if isFa(settings) {
-		msg := "\u200f<b>درخواست شما توسط ادمین رد شد. ❌</b>"
+		msg := "\u200f<blockquote><b>درخواست شما توسط ادمین رد شد. ❌</b>"
 		if adminNote != "" {
 			msg += "\n\n\u200f<b>دلیل:</b> " + htmlEsc(adminNote) + " 📝"
 		}
-		return msg
+		return msg + "</blockquote>"
 	}
 	msg := "❌ <b>Your request was rejected by the administrator.</b>"
 	if adminNote != "" {
@@ -704,13 +704,13 @@ func formatNewAccountMessage(settings *models.TelegramSettings, user *models.Ocs
 	support := supportLine(settings)
 	if isFa(settings) {
 		return fmt.Sprintf(
-			"\u200f<b>اکانت VPN شما آماده است! 🎉</b>\n\n"+
+			"\u200f<blockquote><b>اکانت VPN شما آماده است! 🎉</b>\n\n"+
 				"\u200f<b>سرور:</b> <code>%s</code> 🌐\n"+
 				"\u200f<b>نام کاربری:</b> 👤\n<pre>%s</pre>\n"+
 				"\u200f<b>رمز عبور:</b> 🔑\n<pre>%s</pre>\n"+
 				"\u200f<b>اعتبار تا:</b> %s 📅\n"+
 				"\u200f<b>حجم:</b> %d GB 💾\n\n"+
-				"\u200fرمز عبور را در جای امنی ذخیره کنید. ⚠️%s",
+				"\u200fرمز عبور را در جای امنی ذخیره کنید. ⚠️</blockquote>%s",
 			htmlEsc(host), htmlEsc(user.Username), htmlEsc(plainPassword),
 			expireAt.Format("2006-01-02"), user.TrafficSize, support,
 		)
@@ -741,7 +741,7 @@ func supportLine(settings *models.TelegramSettings) string {
 	}
 	link := `<a href="https://t.me/` + handle + `">@` + handle + `</a>`
 	if isFa(settings) {
-		return "\n\n\u200f<b>راهنمای نصب کلاینت:</b> " + link + " 📖"
+		return "\n\n\u200f<blockquote><b>راهنمای نصب کلاینت:</b> " + link + " 📖</blockquote>"
 	}
 	return "\n\n📖 <b>Client setup guide:</b> " + link
 }
@@ -750,10 +750,10 @@ func formatRenewalMessage(settings *models.TelegramSettings, user *models.Ocserv
 	support := supportLine(settings)
 	if isFa(settings) {
 		return fmt.Sprintf(
-			"\u200f<b>اکانت شما با موفقیت تمدید شد! ✅</b>\n\n"+
+			"\u200f<blockquote><b>اکانت شما با موفقیت تمدید شد! ✅</b>\n\n"+
 				"\u200f<b>نام کاربری:</b> <code>%s</code> 👤\n"+
 				"\u200f<b>تاریخ انقضای جدید:</b> %s 📅\n"+
-				"\u200f<b>حجم جدید:</b> %d GB 💾%s",
+				"\u200f<b>حجم جدید:</b> %d GB 💾</blockquote>%s",
 			htmlEsc(user.Username), newExpire.Format("2006-01-02"), user.TrafficSize, support,
 		)
 	}

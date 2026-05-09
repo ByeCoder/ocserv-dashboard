@@ -2,24 +2,29 @@ package i18n
 
 // HTML strings — see en.go for tag and escaping rules.
 //
-// RTL strategy: each Persian message starts with an actual Persian (strong
-// RTL) character so Telegram's BiDi algorithm picks RTL paragraph direction
-// in every client and even after editMessageText. Emojis go to the END of
-// the title segment so a leading neutral character never tricks the BiDi
-// resolver into LTR. RLM markers are kept as defense-in-depth.
+// RTL strategy:
+//   - Every FA message body is wrapped in <blockquote>...</blockquote>. Telegram
+//     renders blockquote as a left-bordered side block that respects the
+//     paragraph's natural BiDi direction; in our case the first strong char is
+//     Persian, so the whole quote renders right-aligned.
+//   - First visible character of every block is a Persian letter, never an
+//     emoji or punctuation, so BiDi resolves to RTL even after editMessageText.
+//   - U+200F (RLM) is kept as defense-in-depth at the very start.
+//   - Inline button labels are NOT wrapped in blockquote (Telegram strips HTML
+//     in button text); they stay short with the emoji at the end of the label.
 const rlm = "\u200F"
 
 var fa = map[Key]string{
-	Welcome: rlm + "<b>به ربات %s خوش آمدید 👋</b>\n\n" +
+	Welcome: rlm + "<blockquote><b>به ربات %s خوش آمدید 👋</b>\n\n" +
 		"از این ربات می‌توانید:\n" +
 		"• یک اکانت VPN موجود را لینک کنید 🔗\n" +
 		"• مصرف و تاریخ انقضا را ببینید 📊\n" +
 		"• درخواست تمدید بدهید 🔄\n" +
 		"• سفارش اکانت جدید ثبت کنید 🆕\n" +
-		"• هشدار خودکار کم‌شدن حجم بگیرید 🔔",
+		"• هشدار خودکار کم‌شدن حجم بگیرید 🔔</blockquote>",
 
-	BotDisabled: rlm + "ربات در حال حاضر توسط ادمین غیرفعال شده است. لطفاً بعداً مراجعه کنید. ⚠️",
-	MainMenu:    rlm + "<b>منوی اصلی 📋</b>\nچه کاری می‌خواهید انجام دهید؟",
+	BotDisabled: rlm + "<blockquote>ربات در حال حاضر توسط ادمین غیرفعال شده است. لطفاً بعداً مراجعه کنید. ⚠️</blockquote>",
+	MainMenu:    rlm + "<blockquote><b>منوی اصلی 📋</b>\nچه کاری می‌خواهید انجام دهید؟</blockquote>",
 
 	BtnAddAccount: rlm + "افزودن اکانت 🔗",
 	BtnMyAccounts: rlm + "اکانت‌های من 👤",
@@ -32,60 +37,60 @@ var fa = map[Key]string{
 	BtnRenew:      rlm + "تمدید 🔄",
 	BtnRemove:     rlm + "حذف لینک 🗑",
 
-	AskUsername:    rlm + "لطفاً <b>نام کاربری</b> اکانت VPN خود را ارسال کنید: 🔑",
-	AskPassword:    rlm + "حالا <b>رمز عبور</b> اکانت VPN را ارسال کنید (پیام شما بلافاصله حذف می‌شود): 🔒",
-	AskUsernameNew: rlm + "یک نام کاربری برای اکانت جدید انتخاب کنید (۳ تا ۳۲ کاراکتر، حروف لاتین، عدد و <code>_ - .</code>): 📝",
-	AskMessage:     rlm + "می‌توانید توضیح اختیاری برای ادمین بنویسید، یا /skip را بفرستید تا رد شوید: 💬",
-	AskReceipt:     rlm + "لطفاً تصویر رسید پرداخت را به‌صورت <b>عکس</b> ارسال کنید. 🧾",
+	AskUsername:    rlm + "<blockquote>لطفاً <b>نام کاربری</b> اکانت VPN خود را ارسال کنید: 🔑</blockquote>",
+	AskPassword:    rlm + "<blockquote>حالا <b>رمز عبور</b> اکانت VPN را ارسال کنید (پیام شما بلافاصله حذف می‌شود): 🔒</blockquote>",
+	AskUsernameNew: rlm + "<blockquote>یک نام کاربری برای اکانت جدید انتخاب کنید (۳ تا ۳۲ کاراکتر، حروف لاتین، عدد و <code>_ - .</code>): 📝</blockquote>",
+	AskMessage:     rlm + "<blockquote>می‌توانید توضیح اختیاری برای ادمین بنویسید، یا /skip را بفرستید تا رد شوید: 💬</blockquote>",
+	AskReceipt:     rlm + "<blockquote>لطفاً تصویر رسید پرداخت را به‌صورت <b>عکس</b> ارسال کنید. 🧾</blockquote>",
 
-	AuthSuccess:   rlm + "اکانت با موفقیت لینک شد. ✅",
-	AuthFail:      rlm + "نام کاربری یا رمز عبور اشتباه است. ❌",
-	AuthLocked:    rlm + "اکانت شما قفل شده است. لطفاً با ادمین تماس بگیرید. 🔒",
-	AlreadyLinked: rlm + "این اکانت قبلاً به چت تلگرام شما لینک شده است. ℹ️",
+	AuthSuccess:   rlm + "<blockquote>اکانت با موفقیت لینک شد. ✅</blockquote>",
+	AuthFail:      rlm + "<blockquote>نام کاربری یا رمز عبور اشتباه است. ❌</blockquote>",
+	AuthLocked:    rlm + "<blockquote>اکانت شما قفل شده است. لطفاً با ادمین تماس بگیرید. 🔒</blockquote>",
+	AlreadyLinked: rlm + "<blockquote>این اکانت قبلاً به چت تلگرام شما لینک شده است. ℹ️</blockquote>",
 
-	NoAccounts:  rlm + "هنوز اکانتی لینک نکرده‌اید. از منوی اصلی <b>افزودن اکانت</b> را انتخاب کنید. 📭",
-	NoPackages:  rlm + "در حال حاضر پکیج فعالی وجود ندارد. لطفاً بعداً مراجعه کنید. 📦",
-	PickPackage: rlm + "<b>یک پکیج انتخاب کنید: 📦</b>",
+	NoAccounts:  rlm + "<blockquote>هنوز اکانتی لینک نکرده‌اید. از منوی اصلی <b>افزودن اکانت</b> را انتخاب کنید. 📭</blockquote>",
+	NoPackages:  rlm + "<blockquote>در حال حاضر پکیج فعالی وجود ندارد. لطفاً بعداً مراجعه کنید. 📦</blockquote>",
+	PickPackage: rlm + "<blockquote><b>یک پکیج انتخاب کنید: 📦</b></blockquote>",
 
-	PickAccountRenew: rlm + "اکانتی را برای تمدید انتخاب کنید: 🔄",
-	RequestCreated:   rlm + "درخواست شما ثبت شد. ادمین به‌زودی بررسی می‌کند. 📨",
-	RequestExists:    rlm + "یک درخواست در حال بررسی دارید. لطفاً تا تعیین تکلیف صبر کنید. ⏳",
-	WaitForApproval:  rlm + "در انتظار تایید ادمین… ⏳",
-	NotApprovedYet:   rlm + "درخواست شما هنوز تایید نشده، امکان ارسال رسید وجود ندارد. ℹ️",
-	ReceiptSaved:     rlm + "رسید دریافت شد. در انتظار تایید نهایی ادمین. 🧾",
-	OnlyPhoto:        rlm + "لطفاً رسید را به‌صورت عکس ارسال کنید. 📷",
+	PickAccountRenew: rlm + "<blockquote>اکانتی را برای تمدید انتخاب کنید: 🔄</blockquote>",
+	RequestCreated:   rlm + "<blockquote>درخواست شما ثبت شد. ادمین به‌زودی بررسی می‌کند. 📨</blockquote>",
+	RequestExists:    rlm + "<blockquote>یک درخواست در حال بررسی دارید. لطفاً تا تعیین تکلیف صبر کنید. ⏳</blockquote>",
+	WaitForApproval:  rlm + "<blockquote>در انتظار تایید ادمین… ⏳</blockquote>",
+	NotApprovedYet:   rlm + "<blockquote>درخواست شما هنوز تایید نشده، امکان ارسال رسید وجود ندارد. ℹ️</blockquote>",
+	ReceiptSaved:     rlm + "<blockquote>رسید دریافت شد. در انتظار تایید نهایی ادمین. 🧾</blockquote>",
+	OnlyPhoto:        rlm + "<blockquote>لطفاً رسید را به‌صورت عکس ارسال کنید. 📷</blockquote>",
 
-	HelpText: rlm + "<b>راهنمای ربات داشبورد Ocserv</b>\n\n" +
+	HelpText: rlm + "<blockquote><b>راهنمای ربات داشبورد Ocserv</b>\n\n" +
 		"از دکمه‌های inline برای مدیریت اکانت‌ها، مشاهدهٔ مصرف، درخواست تمدید، سفارش اکانت جدید و ارسال رسید پرداخت استفاده کنید.\n\n" +
 		"دستورها:\n" +
 		"• /start — منوی اصلی\n" +
 		"• /help — این راهنما\n" +
 		"• /settings — تنظیمات زبان\n" +
-		"• /cancel — لغو عملیات",
+		"• /cancel — لغو عملیات</blockquote>",
 
-	UsageText: rlm + "<b>اکانت:</b> <code>%s</code> 👤\n" +
+	UsageText: rlm + "<blockquote><b>اکانت:</b> <code>%s</code> 👤\n" +
 		"<b>وضعیت:</b> %s 📌\n" +
 		"<b>حجم بسته:</b> %d GB 💾\n" +
 		"<b>مصرف دریافت:</b> %.2f GB ⬇️\n" +
 		"<b>مصرف ارسال:</b> %.2f GB ⬆️\n" +
-		"<b>انقضا:</b> %s 📅",
+		"<b>انقضا:</b> %s 📅</blockquote>",
 
-	AccountRemoved: rlm + "لینک اکانت از چت تلگرام شما حذف شد. 🗑",
-	NotLinked:      rlm + "این اکانت به چت تلگرام شما لینک نیست. ❓",
-	UnknownCommand: rlm + "دستور نامعتبر. از دکمه‌های منو استفاده کنید. 🤔",
+	AccountRemoved: rlm + "<blockquote>لینک اکانت از چت تلگرام شما حذف شد. 🗑</blockquote>",
+	NotLinked:      rlm + "<blockquote>این اکانت به چت تلگرام شما لینک نیست. ❓</blockquote>",
+	UnknownCommand: rlm + "<blockquote>دستور نامعتبر. از دکمه‌های منو استفاده کنید. 🤔</blockquote>",
 
-	LowQuotaWarning: rlm + "<b>هشدار حجم اکانت</b> <code>%s</code>: فقط %d مگابایت باقی مانده. لطفاً برای تمدید اقدام کنید. 🔔",
+	LowQuotaWarning: rlm + "<blockquote><b>هشدار حجم اکانت</b> <code>%s</code>: فقط %d مگابایت باقی مانده. لطفاً برای تمدید اقدام کنید. 🔔</blockquote>",
 
-	LanguagePicked:    rlm + "زبان با موفقیت تغییر کرد. ✅",
-	SessionTimedOut:   rlm + "جلسه منقضی شد. لطفاً از منوی اصلی دوباره تلاش کنید. ⌛",
-	OcservDeactivated: rlm + "این اکانت غیرفعال است. ⛔",
-	RateLimited:       rlm + "تعداد تلاش‌ها زیاد است. لطفاً یک دقیقه صبر کنید. 🚦",
+	LanguagePicked:    rlm + "<blockquote>زبان با موفقیت تغییر کرد. ✅</blockquote>",
+	SessionTimedOut:   rlm + "<blockquote>جلسه منقضی شد. لطفاً از منوی اصلی دوباره تلاش کنید. ⌛</blockquote>",
+	OcservDeactivated: rlm + "<blockquote>این اکانت غیرفعال است. ⛔</blockquote>",
+	RateLimited:       rlm + "<blockquote>تعداد تلاش‌ها زیاد است. لطفاً یک دقیقه صبر کنید. 🚦</blockquote>",
 
 	// Admin
-	AdminWelcome: rlm + "<b>پنل ادمین — %s 🛡</b>\n\n" +
+	AdminWelcome: rlm + "<blockquote><b>پنل ادمین — %s 🛡</b>\n\n" +
 		"شما به‌عنوان <b>ادمین</b> وارد شده‌اید.\n" +
-		"از دکمه‌های زیر برای مدیریت درخواست‌ها و نظارت بر ربات استفاده کنید.",
-	AdminMenu: rlm + "<b>پنل ادمین 🛡</b>\nیک گزینه انتخاب کنید:",
+		"از دکمه‌های زیر برای مدیریت درخواست‌ها و نظارت بر ربات استفاده کنید.</blockquote>",
+	AdminMenu: rlm + "<blockquote><b>پنل ادمین 🛡</b>\nیک گزینه انتخاب کنید:</blockquote>",
 
 	BtnAdminPending:  rlm + "درخواست‌های در انتظار 📥",
 	BtnAdminReceipts: rlm + "رسیدهای پرداخت 🧾",
@@ -94,15 +99,15 @@ var fa = map[Key]string{
 	BtnAdminBack:     rlm + "بازگشت به پنل ادمین 🔙",
 	BtnOpenPanel:     rlm + "پنل وب 🌐",
 
-	AdminNoPending:  rlm + "درخواست در انتظاری وجود ندارد. 📭",
-	AdminNoReceipts: rlm + "رسیدی برای تایید وجود ندارد. 📭",
+	AdminNoPending:  rlm + "<blockquote>درخواست در انتظاری وجود ندارد. 📭</blockquote>",
+	AdminNoReceipts: rlm + "<blockquote>رسیدی برای تایید وجود ندارد. 📭</blockquote>",
 
-	AdminStatsText: rlm + "<b>آمار ربات 📊</b>\n\n" +
+	AdminStatsText: rlm + "<blockquote><b>آمار ربات 📊</b>\n\n" +
 		"• اکانت‌های لینک‌شده: <b>%d</b>\n" +
 		"• پکیج‌های فعال: <b>%d</b>\n" +
 		"• درخواست‌های در انتظار: <b>%d</b>\n" +
 		"• در انتظار پرداخت: <b>%d</b>\n" +
-		"• رسیدهای آپلودشده: <b>%d</b>",
+		"• رسیدهای آپلودشده: <b>%d</b></blockquote>",
 
 	AdminRequestRow: "<b>#%d</b> · %s · <code>%s</code>\n" +
 		"%s 📝\n" +
