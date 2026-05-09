@@ -74,7 +74,9 @@ type Hub struct {
 
 func NewHub(d Deps) *Hub {
 	if d.BrandName == "" {
-		d.BrandName = "Ocserv Dashboard"
+		// Neutral fallback used only when Telegram cannot tell us the bot's
+		// own first name / username (essentially never in production).
+		d.BrandName = "VPN"
 	}
 	return &Hub{deps: d}
 }

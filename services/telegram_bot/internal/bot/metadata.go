@@ -59,7 +59,7 @@ func applyBotMetadata(api *tgbotapi.BotAPI) {
 	// methods through MakeRequest. The Bot API returns 400 on no-op writes
 	// after an identical call, which is harmless.
 	descriptions := map[string]string{
-		"en": "Manage your Ocserv VPN account directly from Telegram. Check your remaining quota and expiry, request renewals, order new accounts and upload payment receipts. You will be alerted automatically when your traffic runs low.",
+		"en": "Manage your VPN account directly from Telegram. Check your remaining quota and expiry, request renewals, order new accounts and upload payment receipts. You will be alerted automatically when your traffic runs low.",
 		"fa": "اکانت VPN خود را مستقیم از تلگرام مدیریت کنید: مشاهدهٔ مصرف و تاریخ انقضا، درخواست تمدید، سفارش اکانت جدید و ارسال تصویر رسید پرداخت. هنگام کاهش حجم به‌صورت خودکار مطلع می‌شوید.",
 	}
 	for lang, desc := range descriptions {
@@ -73,7 +73,7 @@ func applyBotMetadata(api *tgbotapi.BotAPI) {
 	}
 
 	shortDescriptions := map[string]string{
-		"en": "Self-service Ocserv VPN account management on Telegram.",
+		"en": "Self-service VPN account management on Telegram.",
 		"fa": "مدیریت سلف-سرویس اکانت VPN از طریق تلگرام.",
 	}
 	for lang, short := range shortDescriptions {

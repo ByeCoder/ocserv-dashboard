@@ -60,7 +60,7 @@ var fa = map[Key]string{
 	ReceiptSaved:     rlm + "<blockquote>رسید دریافت شد. در انتظار تایید نهایی ادمین. 🧾</blockquote>",
 	OnlyPhoto:        rlm + "<blockquote>لطفاً رسید را به‌صورت عکس ارسال کنید. 📷</blockquote>",
 
-	HelpText: rlm + "<blockquote><b>راهنمای ربات داشبورد Ocserv</b>\n\n" +
+	HelpText: rlm + "<blockquote><b>راهنمای ربات</b>\n\n" +
 		"از دکمه‌های inline برای مدیریت اکانت‌ها، مشاهدهٔ مصرف، درخواست تمدید، سفارش اکانت جدید و ارسال رسید پرداخت استفاده کنید.\n\n" +
 		"دستورها:\n" +
 		"• /start — منوی اصلی\n" +

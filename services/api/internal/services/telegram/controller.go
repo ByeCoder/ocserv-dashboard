@@ -132,7 +132,7 @@ func (ctl *Controller) Test(c echo.Context) error {
 
 	msg := data.Message
 	if msg == "" {
-		msg = "Test message from Ocserv Dashboard"
+		msg = "Test message from your dashboard"
 	}
 
 	if err := sendTelegramMessage(s.BotToken, s.AdminChatID, msg); err != nil {

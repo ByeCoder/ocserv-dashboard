@@ -44,7 +44,7 @@ var en = map[Key]string{
 	NotApprovedYet:    "ℹ️ Your request is not approved yet — you cannot upload a receipt right now.",
 	ReceiptSaved:      "🧾 Receipt received. Awaiting admin confirmation.",
 	OnlyPhoto:         "📷 Please send the receipt as a photo.",
-	HelpText: "<b>Ocserv Dashboard bot — help</b>\n\n" +
+	HelpText: "<b>Bot help</b>\n\n" +
 		"Commands:\n" +
 		"• /start — open the main menu\n" +
 		"• /help — show this help\n" +
