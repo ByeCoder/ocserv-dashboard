@@ -10,15 +10,6 @@ var Migration003 = &gormigrate.Migration{
 	ID: "003_fix_traffic_statistics_ocserv_user_fk",
 	Migrate: func(tx *gorm.DB) error {
 		if err := tx.Exec(`
-			DELETE FROM ocserv_user_traffic_statistics t
-			WHERE NOT EXISTS (
-				SELECT 1 FROM ocserv_users u WHERE u.id = t.oc_user_id
-			);
-		`).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
 			ALTER TABLE ocserv_user_traffic_statistics
 			DROP CONSTRAINT IF EXISTS fk_traffic_user;
 		`).Error; err != nil {
@@ -46,9 +37,19 @@ var Migration003 = &gormigrate.Migration{
 		return nil
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.Exec(`
+		if err := tx.Exec(`
 			ALTER TABLE ocserv_user_traffic_statistics
 			DROP CONSTRAINT IF EXISTS fk_traffic_ocserv_user;
+		`).Error; err != nil {
+			return err
+		}
+
+		return tx.Exec(`
+			ALTER TABLE ocserv_user_traffic_statistics
+			ADD CONSTRAINT fk_traffic_user
+			FOREIGN KEY (oc_user_id)
+			REFERENCES users(id)
+			ON DELETE CASCADE;
 		`).Error
 	},
 }
