@@ -53,6 +53,7 @@ export * from './request-meta';
 export * from './system-change-user-password';
 export * from './system-change-user-password-by-self';
 export * from './system-create-user-data';
+export * from './system-dashboard-release';
 export * from './system-get-system-init-response';
 export * from './system-get-system-response';
 export * from './system-login-data';

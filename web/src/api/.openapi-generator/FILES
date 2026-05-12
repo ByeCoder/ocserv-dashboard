@@ -74,6 +74,7 @@ models/request-meta.ts
 models/system-change-user-password-by-self.ts
 models/system-change-user-password.ts
 models/system-create-user-data.ts
+models/system-dashboard-release.ts
 models/system-get-system-init-response.ts
 models/system-get-system-response.ts
 models/system-login-data.ts
