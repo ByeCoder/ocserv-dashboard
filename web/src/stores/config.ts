@@ -1,15 +1,19 @@
 import { defineStore } from 'pinia';
 import { OCCTLApi, SystemApi } from '@/api';
-import type { ConfigState, ServerState } from '@/types/storeTypes/StoreConfigType';
+import type { ConfigState, Release, ServerState } from '@/types/storeTypes/StoreConfigType';
 
 export const useServerStore = defineStore('server', {
     state: (): ServerState => ({
         OcservVersion: '',
         OcctlVersion: '',
-        Status: ''
+        Status: '',
+        Release: {
+            Current: '',
+            Latest: ''
+        }
     }),
     actions: {
-        async getServerInfo() {
+        async fetchServerInfo() {
             const api = new OCCTLApi();
             await api
                 .occtlServerInfoGet()
@@ -21,6 +25,17 @@ export const useServerStore = defineStore('server', {
                 })
                 .catch(() => {});
         },
+        async fetchDashboardVersion() {
+            const api = new SystemApi();
+            api.systemReleaseGet()
+                .then((res) => {
+                    this.Release = {
+                        Current: res.data.current,
+                        Latest: res.data.latest
+                    };
+                })
+                .catch(() => {});
+        },
         async setStatus(status: string) {
             this.Status = status;
         }
@@ -28,7 +43,8 @@ export const useServerStore = defineStore('server', {
     getters: {
         getOcservVersion: (state) => state.OcservVersion,
         getOcctlVersion: (state) => state.OcctlVersion,
-        getStatus: (state) => state.Status
+        getStatus: (state) => state.Status,
+        getDashboardRelease: (state) => state.Release
     }
 });
 
@@ -39,7 +55,7 @@ export const useConfigStore = defineStore('config', {
     }),
 
     actions: {
-        async getConfig() {
+        async fetchConfig() {
             const api = new SystemApi();
             await api.systemInitGet().then((res) => {
                 if (res.data) {

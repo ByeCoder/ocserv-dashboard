@@ -37,11 +37,8 @@ const stopLoader = async () => {
 app.use(createPinia());
 
 (async () => {
-    const serverStore = useServerStore();
-    await serverStore.getServerInfo();
-
     const configStore = useConfigStore();
-    const setup = await configStore.getConfig();
+    const setup = await configStore.fetchConfig();
 
     app.use(vuetify);
     app.use(i18n);
@@ -53,6 +50,10 @@ app.use(createPinia());
         localStorage.removeItem('token');
         await router.push({ name: 'System Setup' });
     } else {
+        const serverStore = useServerStore();
+        await serverStore.fetchServerInfo();
+        await serverStore.fetchDashboardVersion();
+
         if (localStorage.getItem('token')) {
             const profileStore = useProfileStore();
             await profileStore.getProfile();

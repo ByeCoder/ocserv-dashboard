@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import NavGroup from './vertical-sidebar/NavGroup/index.vue';
 import NavItem from './vertical-sidebar/NavItem/index.vue';
@@ -10,6 +10,9 @@ import logoUrl from '@/assets/images/logo-circule.png';
 import { getSidebarItems } from '@/layouts/full/vertical-sidebar/sidebarItem';
 import LanguageDD from '@/layouts/full/vertical-header/LanguageDD.vue';
 import { useServerStore } from '@/stores/config';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const sidebarMenu = getSidebarItems();
 
@@ -17,8 +20,8 @@ const { mdAndDown } = useDisplay();
 const sDrawer = ref(true);
 
 const serverStore = useServerStore();
-
 const serverInfo = serverStore.getOcservVersion.split(', ');
+const release = computed(() => serverStore.getDashboardRelease);
 
 onMounted(() => {
     sDrawer.value = !mdAndDown.value;
@@ -32,8 +35,10 @@ watch(mdAndDown, (val) => {
 <template>
     <v-navigation-drawer v-model="sDrawer" :width="300" app class="leftSidebar" elevation="0" left>
         <div class="py-3 bg-primary text-h5">
-            <span class="mx-5">Ocserv Dashboard</span>
-            <v-btn class="ps-16" icon size="small" variant="text" @click="sDrawer = !sDrawer">
+            <span class="mx-5"
+                >Ocserv Dashboard <span style="font-size: 14px; color: #453737">({{ release.Current }})</span></span
+            >
+            <v-btn icon size="small" variant="text" @click="sDrawer = !sDrawer">
                 <v-icon size="25" end>mdi-chevron-left</v-icon>
             </v-btn>
         </div>

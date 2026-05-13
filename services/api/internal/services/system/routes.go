@@ -19,16 +19,43 @@ func Routes(e *echo.Group) {
 		ctl.Login,
 		middlewares.RateLimitMiddleware(2, "m", 3),
 	)
+	
+	// =========================
+	// Public system routes
+	// =========================
+	system := e.Group("/system")
 
-	g := e.Group("/system", middlewares.AuthMiddleware())
-	g.GET("", ctl.System)
-	g.POST("/users/password", ctl.ChangePasswordBySelf)
-	g.GET("/users/profile", ctl.Profile)
+	system.GET("/release", ctl.DashboardRelease)
+	system.GET("/init", ctl.SystemInit)
+	system.POST("/setup", ctl.SetupSystem)
 
-	g.PATCH("", ctl.SystemUpdate, middlewares.AdminPermission())
-	g.POST("/users", ctl.CreateUser, middlewares.AdminPermission())
-	g.POST("/users/:uid/password", ctl.ChangeUserPasswordByAdmin, middlewares.AdminPermission())
-	g.DELETE("/users/:uid", ctl.DeleteUser, middlewares.AdminPermission())
-	g.GET("/users", ctl.Users, middlewares.AdminPermission())
-	g.GET("/users/lookup", ctl.UsersLookup, middlewares.AdminPermission())
+	// Auth (rate limited login)
+	system.POST(
+		"/users/login",
+		ctl.Login,
+		middlewares.RateLimitMiddleware(2, "m", 3),
+	)
+
+	// =========================
+	// Protected system routes
+	// =========================
+	protected := e.Group("/system", middlewares.AuthMiddleware())
+
+	protected.GET("", ctl.System)
+	protected.GET("/users/profile", ctl.Profile)
+	protected.POST("/users/password", ctl.ChangePasswordBySelf)
+
+	// =========================
+	// Admin-only routes
+	// =========================
+	admin := e.Group("/system", middlewares.AuthMiddleware(), middlewares.AdminPermission())
+
+	admin.PATCH("", ctl.SystemUpdate)
+
+	admin.POST("/users", ctl.CreateUser)
+	admin.GET("/users", ctl.Users)
+	admin.GET("/users/lookup", ctl.UsersLookup)
+
+	admin.POST("/users/:uid/password", ctl.ChangeUserPasswordByAdmin)
+	admin.DELETE("/users/:uid", ctl.DeleteUser)
 }

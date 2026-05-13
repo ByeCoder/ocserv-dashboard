@@ -74,6 +74,10 @@ type ResetPasswordResponse struct {
 	User  *models.User `json:"user" validate:"required"`
 	Token string       `json:"token" validate:"required"`
 }
+type DashboardRelease struct {
+	Current string `json:"current" validate:"required"`
+	Latest  string `json:"latest" validate:"required"`
+}
 
 type ResetAdminPassword struct {
 	Username    string `json:"username" validate:"required"`

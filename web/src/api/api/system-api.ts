@@ -26,6 +26,8 @@ import type { MiddlewaresUnauthorized } from '../models';
 // @ts-ignore
 import type { RequestErrorResponse } from '../models';
 // @ts-ignore
+import type { SystemDashboardRelease } from '../models';
+// @ts-ignore
 import type { SystemGetSystemInitResponse } from '../models';
 // @ts-ignore
 import type { SystemGetSystemResponse } from '../models';
@@ -150,6 +152,36 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
+         * Get Dashboard current and latest release
+         * @summary Get Dashboard the current and latest release
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        systemReleaseGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/system/release`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Setup user and system config
          * @summary Setup user and system config
          * @param {SystemSetupSystem} request system setup data
@@ -235,6 +267,18 @@ export const SystemApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Get Dashboard current and latest release
+         * @summary Get Dashboard the current and latest release
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async systemReleaseGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SystemDashboardRelease>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.systemReleaseGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.systemReleaseGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Setup user and system config
          * @summary Setup user and system config
          * @param {SystemSetupSystem} request system setup data
@@ -285,6 +329,15 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          */
         systemPatch(requestParameters: SystemApiSystemPatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<SystemGetSystemResponse> {
             return localVarFp.systemPatch(requestParameters.authorization, requestParameters.request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get Dashboard current and latest release
+         * @summary Get Dashboard the current and latest release
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        systemReleaseGet(options?: RawAxiosRequestConfig): AxiosPromise<SystemDashboardRelease> {
+            return localVarFp.systemReleaseGet(options).then((request) => request(axios, basePath));
         },
         /**
          * Setup user and system config
@@ -388,6 +441,17 @@ export class SystemApi extends BaseAPI {
      */
     public systemPatch(requestParameters: SystemApiSystemPatchRequest, options?: RawAxiosRequestConfig) {
         return SystemApiFp(this.configuration).systemPatch(requestParameters.authorization, requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get Dashboard current and latest release
+     * @summary Get Dashboard the current and latest release
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public systemReleaseGet(options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).systemReleaseGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
