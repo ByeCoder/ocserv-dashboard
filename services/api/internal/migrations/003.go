@@ -7,13 +7,11 @@ import (
 )
 
 var Migration003 = &gormigrate.Migration{
-	ID: "003_widen_ocserv_users_username_password",
-
+	ID: "003_fix_traffic_statistics_ocserv_user_fk",
 	Migrate: func(tx *gorm.DB) error {
 		if err := tx.Exec(`
-			ALTER TABLE ocserv_users
-				ALTER COLUMN username TYPE VARCHAR(255),
-				ALTER COLUMN password TYPE VARCHAR(255);
+			ALTER TABLE ocserv_user_traffic_statistics
+			DROP CONSTRAINT IF EXISTS fk_traffic_user;
 		`).Error; err != nil {
 			return err
 		}
@@ -51,12 +49,20 @@ var Migration003 = &gormigrate.Migration{
 		logger.Info("migration 003 fixed traffic statistics ocserv user foreign key successfully")
 		return nil
 	},
-
 	Rollback: func(tx *gorm.DB) error {
+		if err := tx.Exec(`
+			ALTER TABLE ocserv_user_traffic_statistics
+			DROP CONSTRAINT IF EXISTS fk_traffic_ocserv_user;
+		`).Error; err != nil {
+			return err
+		}
+
 		return tx.Exec(`
-			ALTER TABLE ocserv_users
-				ALTER COLUMN username TYPE VARCHAR(16),
-				ALTER COLUMN password TYPE VARCHAR(16);
+			ALTER TABLE ocserv_user_traffic_statistics
+			ADD CONSTRAINT fk_traffic_user
+			FOREIGN KEY (oc_user_id)
+			REFERENCES users(id)
+			ON DELETE CASCADE;
 		`).Error
 	},
 }

@@ -15,8 +15,12 @@ const release = computed(() => serverStore.getDashboardRelease);
     <v-locale-provider>
         <v-app>
             <MainView />
-            <v-main class="page-bg">
-                <v-container class="page-wrapper" fluid>
+            <v-main>
+                <v-col class="text-center bg-warning ma-0 pa-0" v-if="release.Current != release.Latest">
+                    <span class="text-capitalize">{{ t('NEW_RELEASE_IS_AVAILABLE') }}</span>
+                    ({{ release.Latest }})
+                </v-col>
+                <v-container class="page-wrapper" fluid style="background-color: #eeee">
                     <div class="maxWidth">
                         <RouterView />
                     </div>

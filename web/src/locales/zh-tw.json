@@ -371,5 +371,11 @@
   "TELEGRAM_REPLY_TO_USER": "Reply to customer (Telegram)",
   "TELEGRAM_REPLY_TO_USER_HINT": "shown to the user in Telegram together with payment instructions",
   "TELEGRAM_SUPPORT_USERNAME": "Support Telegram Username",
-  "TELEGRAM_SUPPORT_USERNAME_HINT": "Telegram username without leading at-sign (e.g. masniper) shown to bot users as the support contact"
+  "TELEGRAM_SUPPORT_USERNAME_HINT": "Telegram username without leading at-sign (e.g. masniper) shown to bot users as the support contact",
+  "ADMIN_NEW_PASSWORD": "管理員新密碼",
+  "ADMIN_RESET_PASSWORD": "管理員重設密碼",
+  "NEW_RELEASE_IS_AVAILABLE": "有新版本可用",
+  "RESET_PASSWORD": "重設密碼",
+  "SECRET_KEY": "密鑰",
+  "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "使用伺服器中 env 檔案的密鑰"
 }

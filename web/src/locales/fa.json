@@ -371,5 +371,11 @@
   "USER_UNLOCKED_SUCCESSFULLY_SNACK": "حساب با موفقیت باز شد",
   "VALUE": "مقدار",
   "VIEW": "مشاهده",
-  "YESTERDAY": "دیروز"
+  "YESTERDAY": "دیروز",
+  "ADMIN_NEW_PASSWORD": "رمز عبور جدید مدیر",
+  "ADMIN_RESET_PASSWORD": "بازنشانی رمز عبور مدیر",
+  "NEW_RELEASE_IS_AVAILABLE": "نسخه جدید منتشر شده است",
+  "RESET_PASSWORD": "بازنشانی رمز عبور",
+  "SECRET_KEY": "کلید مخفی",
+  "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "از کلید مخفی فایل env در سرور استفاده کنید"
 }

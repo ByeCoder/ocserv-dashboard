@@ -371,6 +371,11 @@
   "USER_UNLOCKED_SUCCESSFULLY_SNACK": "account unlocked successfully",
   "VALUE": "value",
   "VIEW": "view",
-  "YESTERDAY": "yesterday"
+  "YESTERDAY": "yesterday",
+  "ADMIN_NEW_PASSWORD": "admin new password",
+  "ADMIN_RESET_PASSWORD": "admin reset password",
+  "NEW_RELEASE_IS_AVAILABLE": "new release is available",
+  "RESET_PASSWORD": "reset password",
+  "SECRET_KEY": "secret key",
+  "USE_SECRET_KEY_FROM_ENV_FILE_IN_SERVER": "use secret key from env file in server"
 }
-
