@@ -23,13 +23,16 @@ import (
 )
 
 const (
-	// ReceiptStorageRoot is the root path on disk where receipt photos are stored
-	// for telegram payment workflows. The telegram_bot service writes here too.
-	ReceiptStorageRoot = "/opt/ocserv_dashboard/uploads/receipts"
-
-	telegramAPIBase    = "https://api.telegram.org"
+	telegramAPIBase     = "https://api.telegram.org"
 	telegramHTTPTimeout = 8 * time.Second
 )
+
+func receiptStorageRoot() string {
+	if d := strings.TrimSpace(os.Getenv("TELEGRAM_RECEIPTS_DIR")); d != "" {
+		return filepath.Clean(d)
+	}
+	return "/opt/ocserv_dashboard/uploads/receipts"
+}
 
 type Controller struct {
 	request        request.CustomRequestInterface
@@ -890,5 +893,5 @@ func linkTelegramAccount(ctx context.Context, chatID int64, username, language s
 
 // EnsureReceiptDir is invoked at startup to make sure the receipt storage directory exists.
 func EnsureReceiptDir() error {
-	return os.MkdirAll(filepath.Clean(ReceiptStorageRoot), 0o750)
+	return os.MkdirAll(filepath.Clean(receiptStorageRoot()), 0o750)
 }

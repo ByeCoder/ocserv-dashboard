@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/mmtaee/ocserv-dashboard/common/pkg/config"
@@ -15,7 +16,14 @@ import (
 	"github.com/mmtaee/ocserv-dashboard/telegram_bot/internal/notifier"
 )
 
-const receiptStorageDir = "/opt/ocserv_dashboard/uploads/receipts"
+const defaultReceiptsDir = "/opt/ocserv_dashboard/uploads/receipts"
+
+func receiptStorageDir() string {
+	if d := strings.TrimSpace(os.Getenv("TELEGRAM_RECEIPTS_DIR")); d != "" {
+		return filepath.Clean(d)
+	}
+	return defaultReceiptsDir
+}
 
 var debug bool
 
@@ -29,11 +37,12 @@ func main() {
 	config.Init(debug, "", 0)
 	database.Connect()
 
-	if err := os.MkdirAll(filepath.Clean(receiptStorageDir), 0o750); err != nil {
-		logger.Warn("failed to create receipt directory %s: %v", receiptStorageDir, err)
+	dir := receiptStorageDir()
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		logger.Warn("failed to create receipt directory %s: %v", dir, err)
 	}
 
-	manager := bot.NewManager(receiptStorageDir)
+	manager := bot.NewManager(dir)
 	go manager.Run(ctx)
 
 	notif := notifier.New(manager)
