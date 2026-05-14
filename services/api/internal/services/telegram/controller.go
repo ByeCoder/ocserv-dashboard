@@ -236,6 +236,14 @@ func (ctl *Controller) DeletePackage(c echo.Context) error {
 
 func (ctl *Controller) ListRequests(c echo.Context) error {
 	pagination := ctl.request.Pagination(c)
+	// Default listing matches historical behavior (newest first) when the client omits order/sort.
+	q := c.Request().URL.Query()
+	if q.Get("order") == "" {
+		pagination.Order = "created_at"
+	}
+	if q.Get("sort") == "" {
+		pagination.Sort = "DESC"
+	}
 	status := c.QueryParam("status")
 	requestType := c.QueryParam("type")
 

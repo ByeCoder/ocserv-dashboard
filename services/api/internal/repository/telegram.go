@@ -202,9 +202,16 @@ func (r *TelegramRepository) Requests(
 		return nil, 0, err
 	}
 
+	allowedOrder := map[string]struct{}{
+		"created_at": {}, "id": {}, "status": {}, "type": {}, "updated_at": {},
+	}
+	if _, ok := allowedOrder[pagination.Order]; !ok {
+		pagination.Order = "created_at"
+	}
+
 	var requests []models.TelegramRequest
 	tx := request.Paginator(ctx, r.db, pagination)
-	tx = applyFilters(tx).Order("created_at DESC")
+	tx = applyFilters(tx)
 	if err := tx.Find(&requests).Error; err != nil {
 		return nil, 0, err
 	}
