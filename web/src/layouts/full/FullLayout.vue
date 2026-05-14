@@ -20,7 +20,7 @@ const release = computed(() => serverStore.getDashboardRelease);
                     <span class="text-capitalize">{{ t('NEW_RELEASE_IS_AVAILABLE') }}</span>
                     ({{ release.Latest }})
                 </v-col>
-                <v-container class="page-wrapper" fluid style="background-color: #eeee">
+                <v-container class="page-wrapper page-bg" fluid>
                     <div class="maxWidth">
                         <RouterView />
                     </div>
