@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
     TelegramAPI,
@@ -10,6 +10,7 @@ import { OcservGroupsApi } from '@/api';
 import { getAuthorization } from '@/utils/request';
 import { useSnackbarStore } from '@/stores/snackbar';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
+import SimpleTablePagination from '@/components/shared/SimpleTablePagination.vue';
 
 const { t } = useI18n();
 const snackbar = useSnackbarStore();
@@ -22,8 +23,6 @@ const meta = reactive({
     size: 20,
     total_records: 0
 });
-
-const pageCount = computed(() => Math.max(1, Math.ceil(Number(meta.total_records) / meta.size)));
 
 const detailDialog = ref(false);
 const selected = ref<TelegramRequestModel | null>(null);
@@ -230,7 +229,7 @@ onBeforeUnmount(() => {
     <v-row>
         <v-col cols="12">
             <UiParentCard :title="t('TELEGRAM_REQUESTS')">
-                <v-tabs v-model="tab" color="primary" align-tabs="start" class="mb-3">
+                <v-tabs v-model="tab" color="primary" align-tabs="start" class="mb-3 px-md-15">
                     <v-tab value="pending">{{ t('TELEGRAM_TAB_PENDING') }}</v-tab>
                     <v-tab value="awaiting_payment">{{ t('TELEGRAM_TAB_AWAITING') }}</v-tab>
                     <v-tab value="payment_uploaded">{{ t('TELEGRAM_TAB_UPLOADED') }}</v-tab>
@@ -239,16 +238,16 @@ onBeforeUnmount(() => {
 
                 <v-progress-linear :active="loading" indeterminate />
 
-                <v-table density="comfortable">
+                <v-table density="comfortable" class="px-md-15">
                     <thead>
                         <tr class="text-capitalize bg-lightprimary">
-                            <th>#</th>
-                            <th>{{ t('TELEGRAM_REQUEST_CONTACT') }}</th>
-                            <th>{{ t('TYPE') }}</th>
-                            <th>{{ t('PACKAGE') }}</th>
-                            <th>{{ t('STATUS') }}</th>
-                            <th>{{ t('CREATED_AT') }}</th>
-                            <th>{{ t('ACTION') }}</th>
+                            <th class="text-left">#</th>
+                            <th class="text-left">{{ t('TELEGRAM_REQUEST_CONTACT') }}</th>
+                            <th class="text-left">{{ t('TYPE') }}</th>
+                            <th class="text-left">{{ t('PACKAGE') }}</th>
+                            <th class="text-left">{{ t('STATUS') }}</th>
+                            <th class="text-left">{{ t('CREATED_AT') }}</th>
+                            <th class="text-left">{{ t('ACTION') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -284,32 +283,13 @@ onBeforeUnmount(() => {
                     </tbody>
                 </v-table>
 
-                <v-row v-if="meta.total_records > 0" align="center" class="mt-2 mb-1" justify="center">
-                    <v-col cols="12" sm="4" md="3" lg="2">
-                        <v-select
-                            :model-value="meta.size"
-                            :items="[10, 20, 25, 50]"
-                            :label="t('ITEMS_PER_PAGE')"
-                            density="compact"
-                            variant="outlined"
-                            hide-details
-                            @update:model-value="onPageSizeChange"
-                        />
-                    </v-col>
-                    <v-col cols="12" sm="8" md="9" lg="10" class="d-flex justify-center align-center flex-wrap">
-                        <v-pagination
-                            v-if="pageCount > 1"
-                            :model-value="meta.page"
-                            :length="pageCount"
-                            :total-visible="7"
-                            rounded="circle"
-                            @update:model-value="onPageChange"
-                        />
-                        <span v-else class="text-caption text-medium-emphasis px-2">
-                            {{ t('TOTAL_RECORD') }}: {{ meta.total_records }}
-                        </span>
-                    </v-col>
-                </v-row>
+                <SimpleTablePagination
+                    :total-records="meta.total_records"
+                    :page="meta.page"
+                    :size="meta.size"
+                    @update:page="onPageChange"
+                    @update:size="onPageSizeChange"
+                />
             </UiParentCard>
         </v-col>
 
