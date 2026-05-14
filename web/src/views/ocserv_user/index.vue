@@ -472,7 +472,7 @@ onMounted(() => {
                                         RX:
                                         <span
                                             v-if="item.traffic_type != ModelsOcservUserTrafficTypeEnum.FREE"
-                                            class="text-muted text-subtitle-2"
+                                            class="text-medium-emphasis text-subtitle-2"
                                         >
                                             ({{ t('CURRENT') }})
                                         </span>
@@ -489,7 +489,7 @@ onMounted(() => {
                                         TX:
                                         <span
                                             v-if="item.traffic_type != ModelsOcservUserTrafficTypeEnum.FREE"
-                                            class="text-muted text-subtitle-2"
+                                            class="text-medium-emphasis text-subtitle-2"
                                         >
                                             ({{ t('CURRENT') }})
                                         </span>
