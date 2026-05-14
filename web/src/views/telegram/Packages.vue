@@ -121,57 +121,60 @@ onMounted(load);
                     </v-btn>
                 </template>
 
-                <v-table density="comfortable" class="mt-3">
-                    <thead>
-                        <tr class="text-capitalize bg-lightprimary">
-                            <th class="text-left">{{ t('TITLE') }}</th>
-                            <th class="text-left">{{ t('DAYS') }}</th>
-                            <th class="text-left">{{ t('TRAFFIC_SIZE_GB') }}</th>
-                            <th class="text-left">{{ t('TRAFFIC_TYPE') }}</th>
-                            <th class="text-left">{{ t('PRICE') }}</th>
-                            <th class="text-left">{{ t('STATUS') }}</th>
-                            <th class="text-left">{{ t('ACTION') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="pkg in items" :key="pkg.id">
-                            <td>{{ pkg.title }}</td>
-                            <td>{{ pkg.days }}</td>
-                            <td>{{ pkg.traffic_size_gb }}</td>
-                            <td>{{ pkg.traffic_type }}</td>
-                            <td>{{ pkg.price_text || '—' }}</td>
-                            <td>
-                                <v-chip
-                                    :color="pkg.is_active ? 'success' : 'grey'"
-                                    size="small"
-                                    variant="flat"
-                                >
-                                    {{ pkg.is_active ? t('ACTIVE') : t('INACTIVE') }}
-                                </v-chip>
-                            </td>
-                            <td>
-                                <v-btn
-                                    icon="mdi-pencil"
-                                    size="small"
-                                    variant="text"
-                                    @click="openEdit(pkg)"
-                                />
-                                <v-btn
-                                    icon="mdi-delete"
-                                    size="small"
-                                    variant="text"
-                                    color="error"
-                                    @click="remove(pkg)"
-                                />
-                            </td>
-                        </tr>
-                        <tr v-if="!items.length">
-                            <td colspan="7" class="text-center text-grey">
-                                {{ t('NO_DATA') }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </v-table>
+                <v-progress-linear :active="loading" indeterminate />
+
+                <div v-if="!loading">
+                    <v-table v-if="items.length > 0" density="comfortable" class="px-md-15">
+                        <thead>
+                            <tr class="text-capitalize bg-lightprimary">
+                                <th class="text-left">{{ t('TITLE') }}</th>
+                                <th class="text-left">{{ t('DAYS') }}</th>
+                                <th class="text-left">{{ t('TRAFFIC_SIZE_GB') }}</th>
+                                <th class="text-left">{{ t('TRAFFIC_TYPE') }}</th>
+                                <th class="text-left">{{ t('PRICE') }}</th>
+                                <th class="text-left">{{ t('STATUS') }}</th>
+                                <th class="text-left">{{ t('ACTION') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="pkg in items" :key="pkg.id">
+                                <td>{{ pkg.title }}</td>
+                                <td>{{ pkg.days }}</td>
+                                <td>{{ pkg.traffic_size_gb }}</td>
+                                <td>{{ pkg.traffic_type }}</td>
+                                <td>{{ pkg.price_text || '—' }}</td>
+                                <td>
+                                    <v-chip
+                                        :color="pkg.is_active ? 'success' : 'grey'"
+                                        size="small"
+                                        variant="flat"
+                                    >
+                                        {{ pkg.is_active ? t('ACTIVE') : t('INACTIVE') }}
+                                    </v-chip>
+                                </td>
+                                <td>
+                                    <v-btn
+                                        icon="mdi-pencil"
+                                        size="small"
+                                        variant="text"
+                                        @click="openEdit(pkg)"
+                                    />
+                                    <v-btn
+                                        icon="mdi-delete"
+                                        size="small"
+                                        variant="text"
+                                        color="error"
+                                        @click="remove(pkg)"
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </v-table>
+                </div>
+
+                <div v-if="loading || items.length == 0" class="ms-md-5 mb-md-5 text-capitalize">
+                    {{ t('NO_DATA') }}
+                </div>
             </UiParentCard>
         </v-col>
 
