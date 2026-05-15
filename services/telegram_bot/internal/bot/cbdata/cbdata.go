@@ -9,8 +9,6 @@ const (
 	NewOrder         = "menu:order"
 	Help             = "menu:help"
 	Language         = "menu:lang"
-	LangEN           = "lang:en"
-	LangFA           = "lang:fa"
 	AccountDetail    = "acc:detail:"
 	AccountUsage     = "acc:usage:"
 	AccountRenew     = "acc:renew:"

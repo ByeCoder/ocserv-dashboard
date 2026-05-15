@@ -25,7 +25,7 @@ type PatchSettingsData struct {
 	BotToken            *string `json:"bot_token"`
 	AdminChatID         *int64  `json:"admin_chat_id"`
 	LowQuotaThresholdMB *int    `json:"low_quota_threshold_mb" validate:"omitempty,min=10,max=10240"`
-	DefaultLanguage     *string `json:"default_language" validate:"omitempty,oneof=en fa"`
+	DefaultLanguage     *string `json:"default_language" validate:"omitempty,oneof=en fa ar ru zh-cn zh-tw it"`
 	OcservHost          *string `json:"ocserv_host"`
 	CardNumber          *string `json:"card_number" validate:"omitempty,max=64"`
 	CardHolder          *string `json:"card_holder" validate:"omitempty,max=128"`

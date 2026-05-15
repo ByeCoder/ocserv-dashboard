@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { languages } from '@/plugins/i18n';
 import { TelegramAPI, type TelegramSettings } from '@/api/telegram';
 import { useSnackbarStore } from '@/stores/snackbar';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
@@ -158,10 +159,7 @@ onMounted(load);
                             <v-select
                                 v-model="settings.default_language"
                                 :label="t('TELEGRAM_DEFAULT_LANGUAGE')"
-                                :items="[
-                                    { value: 'en', title: 'English' },
-                                    { value: 'fa', title: 'Persian / فارسی' }
-                                ]"
+                                :items="languages.map((l) => ({ value: l.code, title: l.label }))"
                                 variant="outlined"
                                 density="comfortable"
                             />

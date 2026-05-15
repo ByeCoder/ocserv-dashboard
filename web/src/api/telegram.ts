@@ -6,7 +6,7 @@ export interface TelegramSettings {
     bot_username: string;
     admin_chat_id: number;
     low_quota_threshold_mb: number;
-    default_language: 'en' | 'fa';
+    default_language: string;
     ocserv_host: string;
     card_number: string;
     card_holder: string;
@@ -18,7 +18,7 @@ export interface TelegramSettingsPatch {
     bot_token?: string;
     admin_chat_id?: number;
     low_quota_threshold_mb?: number;
-    default_language?: 'en' | 'fa';
+    default_language?: string;
     ocserv_host?: string;
     card_number?: string;
     card_holder?: string;

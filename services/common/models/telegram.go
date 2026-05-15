@@ -5,8 +5,13 @@ import (
 )
 
 const (
-	TelegramLanguageEN = "en"
-	TelegramLanguageFA = "fa"
+	TelegramLanguageEN   = "en"
+	TelegramLanguageFA   = "fa"
+	TelegramLanguageAR   = "ar"
+	TelegramLanguageRU   = "ru"
+	TelegramLanguageZHCN = "zh-cn"
+	TelegramLanguageZHTW = "zh-tw"
+	TelegramLanguageIT   = "it"
 
 	TelegramRequestTypeNew   = "new"
 	TelegramRequestTypeRenew = "renew"

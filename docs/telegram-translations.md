@@ -4,8 +4,8 @@ You can override bundled English/Persian text without rebuilding binaries.
 
 ## API service (HTML messages to customers)
 
-- **Embedded defaults:** `services/api/internal/services/telegram/i18n/default.json`
-- **Optional overlay:** set `TELEGRAM_I18N_PATH` to a JSON file with the same top-level keys (`en`, `fa`). Values you omit keep the embedded default. Restart the API after changes.
+- **Embedded defaults:** `services/api/internal/services/telegram/i18n/default.json` (`en`, `fa`, `ar`, `ru`, `zh-cn`, `zh-tw`, `it`)
+- **Optional overlay:** set `TELEGRAM_I18N_PATH` to a JSON file with the same top-level keys. Values you omit keep the embedded default. Restart the API after changes.
 
 Keys include notification templates such as `pkg_*`, `awaiting_*`, `rejected_*`, `new_account`, `renewal`, `support_suffix`, and related fragments used by `telegram/controller.go`.
 
@@ -13,10 +13,10 @@ Keys include notification templates such as `pkg_*`, `awaiting_*`, `rejected_*`,
 
 Bot menus, prompts, and button labels (everything under `services/telegram_bot/internal/i18n` used via `i18n.T`).
 
-- **Embedded defaults:** `services/telegram_bot/internal/i18n/default.json` (`en`, `fa`, and any other top-level language codes you add)
+- **Embedded defaults:** `services/telegram_bot/internal/i18n/default.json` — same language codes as the dashboard: `en`, `fa`, `ar`, `ru`, `zh-cn`, `zh-tw`, `it` (new locales start as English copies until translated).
 - **Optional overlay:** set `TELEGRAM_BOT_I18N_PATH` to a JSON file with the same shape (`language` → `key` → string). Keys match the `Key` constants in `i18n.go` (e.g. `welcome`, `btn_back`, `usage_text`). Missing keys fall back to English. Restart the bot after changes.
 
-To add a language (e.g. `ar`, `ru`, `zh-cn` for the seven dashboard locales), copy the `en` block in `default.json`, translate the values, and add a new top-level key — no Go files required.
+Supported codes are defined in `services/common/models/telegram_languages.go` (kept in sync with `VITE_I18N_LANGUAGES` / `web/src/locales/*.json`).
 
 ## Standalone Telegram bot (BotFather metadata)
 

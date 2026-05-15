@@ -161,13 +161,11 @@ func (r *Router) handleCallback(ctx context.Context, cq *tgbotapi.CallbackQuery)
 	case data == cbdata.Language:
 		r.hub.ShowLanguageMenu(ctx, chatID, lang, srcMsgID)
 
-	case data == cbdata.LangEN:
-		r.hub.SetLanguage(ctx, chatID, models.TelegramLanguageEN, srcMsgID)
-		toast = "✓ Language updated"
-
-	case data == cbdata.LangFA:
-		r.hub.SetLanguage(ctx, chatID, models.TelegramLanguageFA, srcMsgID)
-		toast = "✓ زبان تغییر کرد"
+	case strings.HasPrefix(data, models.TelegramLangCallbackPrefix):
+		if code, ok := models.TelegramLangFromCallback(data); ok {
+			r.hub.SetLanguage(ctx, chatID, code, srcMsgID)
+			toast = "✓"
+		}
 
 	case strings.HasPrefix(data, cbdata.AccountDetail):
 		r.hub.ShowAccountDetail(ctx, chatID, parseUintSuffix(data, cbdata.AccountDetail), srcMsgID)

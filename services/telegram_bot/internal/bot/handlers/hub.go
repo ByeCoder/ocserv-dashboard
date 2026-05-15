@@ -233,15 +233,25 @@ func adminUserViewKeyboard(lang string) tgbotapi.InlineKeyboardMarkup {
 }
 
 func languageKeyboard(lang string) tgbotapi.InlineKeyboardMarkup {
-	return tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("English", cbdata.LangEN),
-			tgbotapi.NewInlineKeyboardButtonData("فارسی", cbdata.LangFA),
-		),
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnBack), cbdata.MainMenu),
-		),
-	)
+	var rows [][]tgbotapi.InlineKeyboardButton
+	var row []tgbotapi.InlineKeyboardButton
+	for _, opt := range models.TelegramLanguages {
+		row = append(row, tgbotapi.NewInlineKeyboardButtonData(
+			opt.Label,
+			models.TelegramLangCallback(opt.Code),
+		))
+		if len(row) == 2 {
+			rows = append(rows, row)
+			row = nil
+		}
+	}
+	if len(row) > 0 {
+		rows = append(rows, row)
+	}
+	rows = append(rows, []tgbotapi.InlineKeyboardButton{
+		tgbotapi.NewInlineKeyboardButtonData(i18n.T(lang, i18n.BtnBack), cbdata.MainMenu),
+	})
+	return tgbotapi.NewInlineKeyboardMarkup(rows...)
 }
 
 func backToMenuKeyboard(lang string) tgbotapi.InlineKeyboardMarkup {
@@ -465,6 +475,9 @@ func (h *Hub) ShowLanguageMenu(ctx context.Context, chatID int64, lang string, s
 }
 
 func (h *Hub) SetLanguage(ctx context.Context, chatID int64, newLang string, srcMsgID int) {
+	if !models.IsTelegramLanguage(newLang) {
+		newLang = models.TelegramLanguageEN
+	}
 	if err := h.deps.Repo.UpdateLanguageForChat(ctx, chatID, newLang); err != nil {
 		logger.Warn("telegram_bot: failed to update language: %v", err)
 	}
@@ -516,7 +529,7 @@ func supportFooter(lang string, s *models.TelegramSettings) string {
 		return ""
 	}
 	link := `<a href="https://t.me/` + handle + `">@` + handle + `</a>`
-	if lang == models.TelegramLanguageFA {
+	if models.IsTelegramRTL(lang) {
 		return "\n\n\u200f<b>پشتیبانی:</b> " + link + " 💬"
 	}
 	return "\n\n💬 <b>Support:</b> " + link
